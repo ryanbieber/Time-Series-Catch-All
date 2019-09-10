@@ -1,15 +1,12 @@
 #' building our exogenous regressors for our arimax and neural net models term, moq, quarter
 #'
-#' @param ts_data xts matrix with variable Date in first column
+#' @param data xts matrix with variable Date in first column
 #'
 #' @return a matrix of xregs based on h
 #' @export
 #'
 #' @examples xreg <- exogenous_regressors(ts_data) makes term variables, quarter, and MoQ variables
-exogenous_regressors <- function(data){
-  ts_data <- xts(data, order.by = data$Date)
-  ts_data<- t(ts_data)
-  ts_data<- tslist(ts_data)
+exogenous_regressors <- function(ts_data){
   frame <- as.character(ts_data[[1]])
   quarter <- rep(1:4, times=ceiling(length(frame)/12), each=3)
   quarter <- quarter[1:length(frame)]

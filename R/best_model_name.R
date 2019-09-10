@@ -1,6 +1,6 @@
 ##
 
-#' name of best model
+#' name of best model (4)
 #'
 #' @param data original data with Date in first column
 #' @param modellist list of data frames that contain errors

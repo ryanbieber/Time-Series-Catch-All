@@ -1,5 +1,5 @@
 ##
-#' outputs a csv in wd called forecast values with the model name on the last row and all the forecasts above it
+#' outputs a csv in wd called forecast values with the model name on the last row and all the forecasts above it (5)
 #'
 #' @param data original data containing Date in first column
 #' @param errorlist list of best forecasts

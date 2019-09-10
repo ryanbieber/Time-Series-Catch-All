@@ -1,5 +1,5 @@
 
-#' Finding the best forecast by these error metrics and outputting them
+#' Finding the best forecast by these error metrics and outputting them (3)
 #'
 #' @param DF list of data from time_series_catch
 #' @param data original data with Date in first column

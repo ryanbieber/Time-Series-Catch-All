@@ -1,5 +1,5 @@
 #
-#' making the error values for all the models and adding them to one giant list
+#' making the error values for all the models and adding them to one giant list (2)
 #'
 #' @param DF list of data frames
 #' @param h integer of forecasted steps

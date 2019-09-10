@@ -1,5 +1,5 @@
 
-#' time series catch all
+#' time series catch all (1)
 #'
 #' @param data original data with Date in first column
 #' @param f integer
@@ -20,10 +20,10 @@
 
 time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, cols){
   DF=list() #making a list of Data frames
-  xreg <- exogenous_regressors(ts_data)
   ts_data <- xts(data, order.by = data$Date)
   ts_data<- t(ts_data)
   ts_data<- tslist(ts_data)
+  xreg <- exogenous_regressors(ts_data)
   #main loop that does all the modelling/ forecasting
   for (i in 2:length(data)){  #goes through all columns assume col 1 is the date field and skipping that one
 
