@@ -17,8 +17,8 @@
 #' @export
 #'
 #' @examples the fast version of time-series catch all, can oly be run after you run the first model due to the dependency on the bestModels variable
-#' as it will only run those types of models in the future. To use this you need to take names_of_best_model and do as.character(unlist(modelList)) and
-#' input that as your bestModels variable for this function.
+#' as it will only run those types of models in the future. To use this you need to take the output from names_of_best_model and input it into the
+#' bestModels variable. therefore it will only run the functions that were chosen to be the best model.
 fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n, cols, bestModels){
   # initializing list
   DF_Fast=list()

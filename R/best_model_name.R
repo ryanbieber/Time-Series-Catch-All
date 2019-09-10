@@ -18,5 +18,6 @@ name_of_best_model <- function(data, modellist, x=1){
     namesError <- namesError[match(min(modellist[[i]][x,]), modellist[[i]][x,])]
     namesList[[i]] <- namesError
   }
-  return(namesList)
+  bestModels <- as.character(unlist(namesList))
+  return(bestModels)
 }
