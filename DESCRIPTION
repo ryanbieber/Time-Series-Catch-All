@@ -4,45 +4,7 @@ Title: Looks at time series data and produces the best forecast from them
 Version: 0.1.0
 Author: Ryan Bieber
 Maintainer: <ryan.bieber@ibm.com>
-Description: This package is an all encompassing package that will do everything you could possibly want when looking at IBM finance. An example of
-going through a problem is as follows, 
-# Function call for time series catch all with output DF is a list of forecasted fata frames
-DF <- time_series_catch(data,f, h, trainStart, trainEnd, test, n, as.vector(unique))
-
-# findthe error values of all the forecasting techniques
-DFError <- error_values(DF, h)
-
-## calling the error functions
-DfMAPE <- best_forecast_by_MAPE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
-#DfRMSE <- best_forecast_by_RMSE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
-#DfMSE <- best_forecast_by_MSE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
-
-## best model names x=1 MAPE, x=2 RMSE, x=3 MSE
-mape <- name_of_best_model(data, DFError)
-#rmse <- name_of_best_model(data, DFError, x=2)
-#mse <- name_of_best_model(data, DFError, x=3)
-
-## NEEDED FOR THE NEXT FUNCTION
-bestModels <- as.character(unlist(mape))
-
-## calling function based on running the first time series function.
-#df.fast <- fast_time_series_catch_all(data, skip, ts_data, f, h, trainStart, trainEnd, test, n, as.vector(unique), bestModels)
-
-## unlisting models
-mapeModels <- as.data.frame(unlist(mape))
-#rmseModels <- as.data.frame(unlist(rmse))
-#mseModels <- as.data.frame(unlist(mse))
-
-## csv of best models forecasted values and add the model under the forecasted value
-fcast_values <- csv_forecast_values(data, DfMAPE, h, unique)
-#fast_fcast_values <- csv_forecast_values(data, df.fast, h, unique)
-
-
-## Writing to a csv
-write.csv(fcast_values, file = "forecast_values.csv",row.names=TRUE)
-
-## Writing to a csv
-#write.csv(fast_fcast_values, file = "fast_forecast_values.csv",row.names=TRUE)
+Description: This package is an all encompassing package that will do everything you could possibly want when looking at IBM finance.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
