@@ -6,5 +6,5 @@ First, install `rtools` from [CRAN](https://cran.r-project.org/bin/windows/Rtool
 Then, from inside `R` run:
 
 ``` r
-install.packages("TimeSeriesCatchAll_0.1.0.tar.gz", repos = NULL, type="source", dependencies = TRUE)
+install_local("TimeSeriesCatchAll_0.1.0.tar.gz", repos = NULL, type="source", dependencies = TRUE)
 ```
