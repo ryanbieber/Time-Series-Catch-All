@@ -1,6 +1,7 @@
 ## Looks at time series in IBM finance
 
 ## Installation
+Install `rtools` from [CRAN](https://cran.r-project.org/bin/windows/Rtools/)
 
 To install, from inside `R` please run:
 
