@@ -2,13 +2,13 @@
 #' time series catch all (1)
 #'
 #' @param data original data with Date in first column
-#' @param f integer
-#' @param h integer
-#' @param trainStart numeric vector
-#' @param trainEnd numeric vector
-#' @param test numeric vector
-#' @param n integer
-#' @param cols character vector
+#' @param f frequency of data i.e. month/day/year 12/365/1, interger
+#' @param h forecasting steps up to 3, integer
+#' @param trainStart numeric vector, i.e. c(2016, 1) for Jan 2016
+#' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016
+#' @param test numeric vector, i.e. c(2016, 1) for Jan 2016
+#' @param n integer, number of cores you want to use
+#' @param cols character vector, column names you want to forecast i.e. colnames(data)[2:100] if your data frame has 100 columns and Date is in the first column
 #'
 #' @return a list of data frames with all the forecasts in each frame for each respective column
 #' @export

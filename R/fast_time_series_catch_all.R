@@ -3,15 +3,15 @@
 
 #' ONLY USE IF YOU ALREADY RAN THE FIRST MODEL(time_series_catch_all) AND HAVE A VEcTOR OF MODEL NAMES
 #'
-#' @param data original data containing Date in first column
-#' @param f integer
-#' @param h integer
-#' @param trainStart numeric vector
-#' @param trainEnd numeric vector
-#' @param test numeric vector
-#' @param n integer
-#' @param cols character vector
-#' @param bestModels vector of best modelNames equal to columns-1
+#' @param data original data with Date in first column
+#' @param f frequency of data i.e. month/day/year 12/365/1, interger
+#' @param h forecasting steps up to 3, integer
+#' @param trainStart numeric vector, i.e. c(2016, 1) for Jan 2016
+#' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016
+#' @param test numeric vector, i.e. c(2016, 1) for Jan 2016
+#' @param n integer, number of cores you want to use
+#' @param cols character vector, column names you want to forecast i.e. colnames(data)[2:100] if your data frame has 100 columns and Date is in the first column(only used in naming at end) must be equal to number of columns forecasting
+#' @param bestModels vector of best modelNames, comes from best_model_name function
 #'
 #' @return a list of data frames that only contain the best model found by using the best_model_name function
 #' @export

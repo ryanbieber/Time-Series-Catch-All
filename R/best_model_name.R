@@ -3,8 +3,8 @@
 #' name of best model (4)
 #'
 #' @param data original data with Date in first column
-#' @param modellist list of data frames that contain errors
-#' @param x integer indicating MAPE, MSE, or RMSE
+#' @param modellist list of data frames that contain errors from error_values
+#' @param x integer indicating MAPE is the default, MSE = 2, or RMSE = 3
 #'
 #' @return List of he best model names used
 #' @export
