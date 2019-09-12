@@ -2,30 +2,26 @@
 % Please edit documentation in R/best_forecast_by_RMSE.R
 \name{best_forecast_by_RMSE}
 \alias{best_forecast_by_RMSE}
-\title{Finding the best forecast by these error metrics and outputting them}
+\title{Finding the best forecast by these error metrics and outputting them (3)}
 \usage{
-best_forecast_by_RMSE(DF, data, f, DFError, trainStart, ts_data, names)
+best_forecast_by_RMSE(DF, data, f, DFError, trainStart)
 }
 \arguments{
 \item{DF}{list of data from time_series_catch}
 
 \item{data}{original data with Date in first column}
 
-\item{f}{integer}
+\item{f}{frequency of data i.e. month/day/year 12/365/1, interger}
 
-\item{DFError}{list of data frames that contain errors}
+\item{DFError}{list of data frames that contain errors from error_calculations}
 
-\item{trainStart}{numeric vector}
-
-\item{ts_data}{xts matrix}
-
-\item{names}{character vector}
+\item{trainStart}{numeric vector, i.e. c(2016, 1) for Jan 2016}
 }
 \value{
 list of data frames with best forecast by that error method
 }
 \description{
-Finding the best forecast by these error metrics and outputting them
+Finding the best forecast by these error metrics and outputting them (3)
 }
 \examples{
 DfRMSE <- best_forecast_by_RMSE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
