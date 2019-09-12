@@ -8,22 +8,27 @@
 #' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016
 #' @param test numeric vector, i.e. c(2016, 1) for Jan 2016
 #' @param n integer, number of cores you want to use
-#' @param cols character vector, column names you want to forecast i.e. colnames(data)[2:100] if your data frame has 100 columns and Date is in the first column
+#' @param is.VL if the data is vended labor flag it with is.VL = TRUE
+#' @param seasonaility if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly
 #'
 #' @return a list of data frames with all the forecasts in each frame for each respective column
 #' @export
 #'
 #' @examples # Function call for time series catch all with output DF is a list of forecasted fata frames
-#' DF <- time_series_catch(data, f, h, trainStart, trainEnd, test, n, as.vector(unique)) in which data is the orignal data with the variable Date in the first column
+#' DF <- time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly") in which data is the orignal data with the variable Date in the first column
 #' f is frequency, h is forecasted steps up to 3, trainStart/trainEnd/test are all date vectors specified with c(2016, 1), n is the number of cores to use for pp
 #' cols is a vector of equal length of the data column minus 1 which holds the names of all the unique column names.
 
-time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, cols){
+time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly"){
   DF=list() #making a list of Data frames
+  cols <- colnames(data)
   ts_data <- xts(data, order.by = data$Date)
   ts_data<- t(ts_data)
   ts_data<- tslist(ts_data)
-  xreg <- exogenous_regressors(ts_data)
+  if (is.VL == TRUE){
+    xreg <- exogenous_regressors(ts_data)
+  } else {}
+
   #main loop that does all the modelling/ forecasting
   for (i in 2:length(data)){  #goes through all columns assume col 1 is the date field and skipping that one
 
@@ -48,30 +53,44 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, cols){
     #h <- length(n_test) # may need to be changed if you want to forecast using all the the data as training
 
     #dlm model
-    a <- ts_dlm_model(time, n_train, h)
+    a <- ts_dlm_model(time, n_train, h, seasonaility)
 
 
     #exponntial smoothing
     ETS <- forecast(ets(as.double(n_train)), h=h)
 
-    #setting up xregs for ARIMA and Hybridmodel
-    xregtrain <- xreg[c(1:(NROW(n_train))),1]
-    xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
-    xregnntrain <- xreg[c(1:(NROW(n_train))),]
-    xregnntest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),]
+    if (is.VL==TRUE){
 
-    ## if you go to 1 forecasted value it messes up the format of multiple external regressors
-    if (h==1){
-      xregnntest <- t(as.matrix(xregnntest))
-    }
+      #setting up xregs for ARIMA and Hybridmodel
+      xregtrain <- xreg[c(1:(NROW(n_train))),1]
+      xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
+      xregnntrain <- xreg[c(1:(NROW(n_train))),]
+      xregnntest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),]
+
+      ## if you go to 1 forecasted value it messes up the format of multiple external regressors
+      if (h==1){
+        xregnntest <- t(as.matrix(xregnntest))
+      }
+
+    }else{}
+
 
     #print(xregnntest)
     #break()
 
-    #arima modelling
-    ARIMA <- forecast(auto.arima(as.double(n_train),
-                                 stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc"),
-                      h=h, xreg = xregtest)
+    if(is.VL==TRUE){
+
+      #arima modelling
+      ARIMA <- forecast(auto.arima(as.double(n_train),
+                                   stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc"),
+                        h=h, xreg = xregtest)
+    }else{
+      #arima modelling
+      ARIMA <- forecast(auto.arima(as.double(n_train),
+                                   stepwise = FALSE, parallel = TRUE, biasadj = TRUE, ic ="aicc"),
+                        h=h)
+    }
+
 
     #uses tbats model
     TBATS <- forecast(tbats(as.double(n_train),
@@ -134,7 +153,7 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, cols){
     #print(Y)
 
     #rename columns for completness
-    colnames(Y) <- c(cols[i-1],
+    colnames(Y) <- c(cols[i],
                      "ETS",
                      "ARIMAX",
                      "TBATS",
