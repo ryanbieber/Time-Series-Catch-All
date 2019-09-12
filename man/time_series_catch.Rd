@@ -2,36 +2,39 @@
 % Please edit documentation in R/time_series_catch.R
 \name{time_series_catch}
 \alias{time_series_catch}
-\title{time series catch all}
+\title{time series catch all (1)}
 \usage{
-time_series_catch(data, f, h, trainStart, trainEnd, test, n, cols)
+time_series_catch(data, f, h, trainStart, trainEnd, test, n,
+  is.VL = FALSE, seasonaility = "Monthly")
 }
 \arguments{
 \item{data}{original data with Date in first column}
 
-\item{f}{integer}
+\item{f}{frequency of data i.e. month/day/year 12/365/1, interger}
 
-\item{h}{integer}
+\item{h}{forecasting steps up to 3, integer}
 
-\item{trainStart}{numeric vector}
+\item{trainStart}{numeric vector, i.e. c(2016, 1) for Jan 2016}
 
-\item{trainEnd}{numeric vector}
+\item{trainEnd}{numeric vector, i.e. c(2016, 1) for Jan 2016}
 
-\item{test}{numeric vector}
+\item{test}{numeric vector, i.e. c(2016, 1) for Jan 2016}
 
-\item{n}{integer}
+\item{n}{integer, number of cores you want to use}
 
-\item{cols}{character vector}
+\item{is.VL}{if the data is vended labor flag it with is.VL = TRUE}
+
+\item{seasonaility}{if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly}
 }
 \value{
 a list of data frames with all the forecasts in each frame for each respective column
 }
 \description{
-time series catch all
+time series catch all (1)
 }
 \examples{
 # Function call for time series catch all with output DF is a list of forecasted fata frames
-DF <- time_series_catch(data, f, h, trainStart, trainEnd, test, n, as.vector(unique)) in which data is the orignal data with the variable Date in the first column
+DF <- time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly") in which data is the orignal data with the variable Date in the first column
 f is frequency, h is forecasted steps up to 3, trainStart/trainEnd/test are all date vectors specified with c(2016, 1), n is the number of cores to use for pp
 cols is a vector of equal length of the data column minus 1 which holds the names of all the unique column names.
 }
