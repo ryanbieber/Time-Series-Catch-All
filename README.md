@@ -3,6 +3,8 @@
 ## Installation
 First, install `rtools` from [CRAN](https://cran.r-project.org/bin/windows/Rtools/)
 
+Now, download the most recent package from [BOX](https://ibm.box.com/s/0t2rjejy9p7inaq6drlam2y7lmfxhioy)
+
 Then, from inside `R` run:
 
 ``` r
