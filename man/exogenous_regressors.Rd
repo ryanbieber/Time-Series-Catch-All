@@ -4,10 +4,10 @@
 \alias{exogenous_regressors}
 \title{building our exogenous regressors for our arimax and neural net models term, moq, quarter}
 \usage{
-exogenous_regressors(data)
+exogenous_regressors(ts_data)
 }
 \arguments{
-\item{ts_data}{xts matrix with variable Date in first column}
+\item{data}{xts matrix with variable Date in first column}
 }
 \value{
 a matrix of xregs based on h
