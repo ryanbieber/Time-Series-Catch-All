@@ -1,6 +1,3 @@
-
-##
-
 #' ONLY USE IF YOU ALREADY RAN THE FIRST MODEL(time_series_catch_all) AND HAVE A VEcTOR OF MODEL NAMES
 #'
 #' @param data original data with Date in first column
@@ -20,7 +17,7 @@
 #' @examples the fast version of time-series catch all, can oly be run after you run the first model due to the dependency on the bestModels variable
 #' as it will only run those types of models in the future. To use this you need to take the output from names_of_best_model and input it into the
 #' bestModels variable. therefore it will only run the functions that were chosen to be the best model.
-fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly", bestModels){
+fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n, bestModels, is.VL = FALSE, seasonaility = "Monthly"){
   # initializing list
   cols <- colnames(data)
   DF_Fast=list()
