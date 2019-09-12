@@ -2,20 +2,20 @@
 % Please edit documentation in R/error_calculations.R
 \name{error_values}
 \alias{error_values}
-\title{making the error values for all the models and adding them to one giant list}
+\title{making the error values for all the models and adding them to one giant list (2)}
 \usage{
 error_values(DF, h)
 }
 \arguments{
 \item{DF}{list of data frames}
 
-\item{h}{integer of forecasted steps}
+\item{h}{integer, forecasted steps up to 3}
 }
 \value{
 DFError or a list of error dataframes
 }
 \description{
-making the error values for all the models and adding them to one giant list
+making the error values for all the models and adding them to one giant list (2)
 }
 \examples{
 DFError <- error_values(DF, h) uses the list of data frames made by time_series_catch_all and h is the forecasted steps.

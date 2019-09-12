@@ -2,7 +2,7 @@
 #' making the error values for all the models and adding them to one giant list (2)
 #'
 #' @param DF list of data frames
-#' @param h integer of forecasted steps
+#' @param h integer, forecasted steps up to 3
 #'
 #' @return DFError or a list of error dataframes
 #' @export

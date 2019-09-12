@@ -4,27 +4,29 @@
 \alias{fast_time_series_catch_all}
 \title{ONLY USE IF YOU ALREADY RAN THE FIRST MODEL(time_series_catch_all) AND HAVE A VEcTOR OF MODEL NAMES}
 \usage{
-fast_time_series_catch_all(data, f, h, trainStart, trainEnd, test, n, cols,
-  bestModels)
+fast_time_series_catch_all(data, f, h, trainStart, trainEnd, test, n,
+  is.VL = FALSE, seasonaility = "Monthly", bestModels)
 }
 \arguments{
-\item{data}{original data containing Date in first column}
+\item{data}{original data with Date in first column}
 
-\item{f}{integer}
+\item{f}{frequency of data i.e. month/day/year 12/365/1, interger}
 
-\item{h}{integer}
+\item{h}{forecasting steps up to 3, integer}
 
-\item{trainStart}{numeric vector}
+\item{trainStart}{numeric vector, i.e. c(2016, 1) for Jan 2016}
 
-\item{trainEnd}{numeric vector}
+\item{trainEnd}{numeric vector, i.e. c(2016, 1) for Jan 2016}
 
-\item{test}{numeric vector}
+\item{test}{numeric vector, i.e. c(2016, 1) for Jan 2016}
 
-\item{n}{integer}
+\item{n}{integer, number of cores you want to use}
 
-\item{cols}{character vector}
+\item{is.VL}{if the data is vended labor flag it with is.VL = TRUE}
 
-\item{bestModels}{vector of best modelNames equal to columns-1}
+\item{seasonaility}{if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly}
+
+\item{bestModels}{vector of best modelNames, comes from best_model_name function}
 }
 \value{
 a list of data frames that only contain the best model found by using the best_model_name function
@@ -34,6 +36,6 @@ ONLY USE IF YOU ALREADY RAN THE FIRST MODEL(time_series_catch_all) AND HAVE A VE
 }
 \examples{
 the fast version of time-series catch all, can oly be run after you run the first model due to the dependency on the bestModels variable
-as it will only run those types of models in the future. To use this you need to take names_of_best_model and do as.character(unlist(modelList)) and
-input that as your bestModels variable for this function.
+as it will only run those types of models in the future. To use this you need to take the output from names_of_best_model and input it into the
+bestModels variable. therefore it will only run the functions that were chosen to be the best model.
 }

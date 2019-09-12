@@ -2,22 +2,22 @@
 % Please edit documentation in R/best_model_name.R
 \name{name_of_best_model}
 \alias{name_of_best_model}
-\title{name of best model}
+\title{name of best model (4)}
 \usage{
 name_of_best_model(data, modellist, x = 1)
 }
 \arguments{
 \item{data}{original data with Date in first column}
 
-\item{modellist}{list of data frames that contain errors}
+\item{modellist}{list of data frames that contain errors from error_values}
 
-\item{x}{integer indicating MAPE, MSE, or RMSE}
+\item{x}{integer indicating MAPE is the default, MSE = 2, or RMSE = 3}
 }
 \value{
 List of he best model names used
 }
 \description{
-name of best model
+name of best model (4)
 }
 \examples{
 Takes the original data used and the list of errors made from error_calculatons to find out which is the best model.

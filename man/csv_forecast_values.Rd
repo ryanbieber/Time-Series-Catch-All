@@ -2,24 +2,22 @@
 % Please edit documentation in R/csv_forecast_values.R
 \name{csv_forecast_values}
 \alias{csv_forecast_values}
-\title{outputs a csv in wd called forecast values with the model name on the last row and all the forecasts above it}
+\title{outputs a csv in wd called forecast values with the model name on the last row and all the forecasts above it (5)}
 \usage{
-csv_forecast_values(data, errorlist, h, colname)
+csv_forecast_values(data, errorlist, h)
 }
 \arguments{
 \item{data}{original data containing Date in first column}
 
-\item{errorlist}{list of best forecasts}
+\item{errorlist}{list of best forecasts from best_forecast_by_MAPE/MSE/RMSE}
 
-\item{h}{integer}
-
-\item{colname}{character vector indicating column names}
+\item{h}{integer, number of forecast steps}
 }
 \value{
 a matrix of forecasted values with the best model type used in the last row. Only able to use up to an h=3 value.
 }
 \description{
-outputs a csv in wd called forecast values with the model name on the last row and all the forecasts above it
+outputs a csv in wd called forecast values with the model name on the last row and all the forecasts above it (5)
 }
 \examples{
 fcast_values <- csv_forecast_values(data, DfMAPE, h, unique) takes the original data frame, the best_forecast_by_error_method, and the colname

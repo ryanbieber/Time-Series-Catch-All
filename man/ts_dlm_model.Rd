@@ -4,7 +4,7 @@
 \alias{ts_dlm_model}
 \title{dlm model}
 \usage{
-ts_dlm_model(time, n_train, h)
+ts_dlm_model(time, n_train, h, seasonaility)
 }
 \arguments{
 \item{time}{ts}
@@ -12,6 +12,8 @@ ts_dlm_model(time, n_train, h)
 \item{n_train}{ts}
 
 \item{h}{integer from 1-3}
+
+\item{seasonaility}{monthly by default}
 }
 \value{
 forecasted values based on h

@@ -1,7 +1,7 @@
 Package: TimeSeriesCatchAll
 Type: Package
 Title: Looks at time series data and produces the best forecast from them
-Version: 0.1.0
+Version: 0.1.1
 Author: Ryan Bieber
 Maintainer: <ryan.bieber@ibm.com>
 Description: This package is an all encompassing package that will do everything you could possibly want when looking at IBM finance.
@@ -25,7 +25,7 @@ Imports:
     tidyverse,
     dplyr,
     gridExtra,
-    dlm,
+    dlm
 Depends:
     data.table,
     forecast,
@@ -42,4 +42,4 @@ Depends:
     tidyverse,
     dplyr,
     gridExtra,
-    dlm,   
+    dlm
