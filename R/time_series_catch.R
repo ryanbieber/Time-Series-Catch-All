@@ -107,24 +107,44 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
 
     #setting N-train to numeric as hybridModel needs it like that
     n_train<-as.numeric(n_train)
+    if (is.VL==TRUE){
 
-    Hybrid1 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregtrain),
-                                    a.args = list(xreg = xregtrain)),
-                        h=h, xreg = xregtest) # ?forecasthybrid
 
-    Hybrid2 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregtrain),
-                                    a.args = list(xreg = xregtrain)),
-                        h=h, xreg = xregtest)
+      Hybrid1 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
+                                      n.args = list(xreg = xregtrain),
+                                      a.args = list(xreg = xregtrain)),
+                          h=h, xreg = xregtest) # ?forecasthybrid
 
-    Hybrid3 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregnntrain)),
-                        h=h, xreg = xregnntest)
+      Hybrid2 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
+                                      n.args = list(xreg = xregtrain),
+                                      a.args = list(xreg = xregtrain)),
+                          h=h, xreg = xregtest)
 
-    Hybrid4 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregnntrain)),
-                        h=h, xreg = xregnntest)
+      Hybrid3 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
+                                      n.args = list(xreg = xregnntrain)),
+                          h=h, xreg = xregnntest)
+
+      Hybrid4 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
+                                      n.args = list(xreg = xregnntrain)),
+                          h=h, xreg = xregnntest)
+
+
+
+
+    }else{
+      Hybrid1 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,),
+                          h=h) # ?forecasthybrid
+
+      Hybrid2 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n),
+                          h=h)
+
+      Hybrid3 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n),
+                          h=h)
+
+      Hybrid4 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n),
+                          h=h)
+    }
+
 
     Hybrid1 <-ts(Hybrid1$mean, frequency = f, start = test)
     Hybrid2 <-ts(Hybrid2$mean, frequency = f, start = test)
