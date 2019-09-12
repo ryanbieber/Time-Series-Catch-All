@@ -4,17 +4,24 @@
 #' @param time ts
 #' @param n_train ts
 #' @param h integer from 1-3
+#' @param seasonaility monthly by default
 #'
 #' @return forecasted values based on h
 #' @export
 #'
 #' @examples gets called in the time_series_catch_all function to run DLM models.
-ts_dlm_model <- function(time, n_train, h){
+ts_dlm_model <- function(time, n_train, h, seasonaility){
 
 
   ##DLM use ?dlm in command prompt
-  model.mle <- dlmMLE(time, parm=c(0.1, 0, 1, 1), build=model.build)
-  model.fit <- model.build(model.mle$par)
+  if (seasonaility=="Monthly"){
+    model.mle <- dlmMLE(time, parm=c(0.1, 0, 1, 1), build=model.build.12)
+    model.fit <- model.build.12(model.mle$par)
+  } else{
+    model.mle <- dlmMLE(time, parm=c(0.1, 0, 1, 1), build=model.build.3)
+    model.fit <- model.build.3(model.mle$par)
+  }
+
   model.filtered <- dlmFilter(time, model.fit)
   model.smoothed <- dlmSmooth(time, model.fit)
   model.forecast <- dlmForecast(model.filtered, nAhead=h)
