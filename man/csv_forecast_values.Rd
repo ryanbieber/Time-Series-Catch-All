@@ -4,7 +4,7 @@
 \alias{csv_forecast_values}
 \title{outputs a csv in wd called forecast values with the model name on the last row and all the forecasts above it (5)}
 \usage{
-csv_forecast_values(data, errorlist, h)
+csv_forecast_values(data, errorlist, h, Models, e_val, x = 1)
 }
 \arguments{
 \item{data}{original data containing Date in first column}
@@ -12,6 +12,14 @@ csv_forecast_values(data, errorlist, h)
 \item{errorlist}{list of best forecasts from best_forecast_by_MAPE/MSE/RMSE}
 
 \item{h}{integer, number of forecast steps}
+
+\item{Models}{a column vector of the bestmodels comes from name_of_best_model}
+
+\item{e_val}{a numeric vector that contains the error values from the best model}
+
+\item{x}{indicator for MAPE=1, RMSE=2, MSE=3}
+
+\item{DFError}{a list of data frames contianing all the errors comes from error_calculations}
 }
 \value{
 a matrix of forecasted values with the best model type used in the last row. Only able to use up to an h=3 value.

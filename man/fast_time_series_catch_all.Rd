@@ -5,7 +5,7 @@
 \title{ONLY USE IF YOU ALREADY RAN THE FIRST MODEL(time_series_catch_all) AND HAVE A VEcTOR OF MODEL NAMES}
 \usage{
 fast_time_series_catch_all(data, f, h, trainStart, trainEnd, test, n,
-  is.VL = FALSE, seasonaility = "Monthly", bestModels)
+  bestModels, is.VL = FALSE, seasonaility = "Monthly")
 }
 \arguments{
 \item{data}{original data with Date in first column}
@@ -22,11 +22,11 @@ fast_time_series_catch_all(data, f, h, trainStart, trainEnd, test, n,
 
 \item{n}{integer, number of cores you want to use}
 
+\item{bestModels}{vector of best modelNames, comes from best_model_name function}
+
 \item{is.VL}{if the data is vended labor flag it with is.VL = TRUE}
 
 \item{seasonaility}{if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly}
-
-\item{bestModels}{vector of best modelNames, comes from best_model_name function}
 }
 \value{
 a list of data frames that only contain the best model found by using the best_model_name function

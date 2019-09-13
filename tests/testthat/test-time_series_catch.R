@@ -14,10 +14,12 @@ test_that("The functions are all running correctly", {
           DFRMSE <- best_forecast_by_RMSE(DF, data,  12, DFError, c(1974, 1))
   # name of the best model
           MAPE <- name_of_best_model(data, DFError, x=1)
-          MSE <- name_of_best_model(data, DFError, x=2)
-          RMSE <- name_of_best_model(data, DFError, x=3)
+          RMSE <- name_of_best_model(data, DFError, x=2)
+          MSE <- name_of_best_model(data, DFError, x=3)
   # output to csv
-          csv_forecast_values(data, DFMAPE, 3, MAPE)
+          csv_forecast_values(data, DFMAPE, 3, MAPE, DFError, x=1)
+          csv_forecast_values(data, DFMAPE, 3, RMSE, DFError, x=2)
+          csv_forecast_values(data, DFMAPE, 3, MSE, DFError, x=3)
   # fast catch_all
          expect_warning( DFFast <- fast_time_series_catch_all(data, 12, 3, c(1974, 1), c(1979,9), c(1979, 10), 12, MAPE))
 

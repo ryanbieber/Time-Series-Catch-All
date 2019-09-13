@@ -1,6 +1,3 @@
-
-
-#
 #' Finding the best forecast by these error metrics and outputting them (3)
 #'
 #' @param DF list of data from time_series_catch
