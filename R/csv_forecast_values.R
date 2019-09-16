@@ -11,8 +11,8 @@
 #' @return a matrix of forecasted values with the best model type used in the last row. Only able to use up to an h=3 value.
 #' @export
 #'
-#' @examples fcast_values <- csv_forecast_values(data, DfMAPE, h, unique) takes the original data frame, the best_forecast_by_error_method, and the colname
-#' is a vector of names for each column
+#' @examples csv_forecast_values(data, DFMAPE, h, MAPE, DFError)
+#'
 csv_forecast_values <- function(data, errorlist, h, Models, DFError, x=1){
   colname <- as.factor(colnames(data)[2:length(data)])
   fcast <- na.omit(unlist(errorlist))

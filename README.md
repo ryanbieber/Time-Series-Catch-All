@@ -8,14 +8,12 @@ Now, download the most recent package from [BOX](https://ibm.box.com/s/0t2rjejy9
 Then, from inside `R` run:
 
 ``` r
-install_local("TimeSeriesCatchAll_0.1.0.tar.gz", repos = NULL, type="source", dependencies = TRUE)
+install_local("NameOfTheMostUpToDateFile.tar.gz", repos = NULL, type="source", dependencies = TRUE)
 ```
 
 ## How to use the package on normal time series data
 
 After the package is installed the main functions you will use are,
-
-
 
 ``` r
 time_series_catch, 

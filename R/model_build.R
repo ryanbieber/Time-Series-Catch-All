@@ -5,7 +5,7 @@
 #' @return DLM
 #' @export
 #'
-#' @examples makes a seasonal model in the dlm sense with 2 polynomial terms
+#' @examples Monthly seasonal model
 model.build.12 <- function(p) {
   return(
     dlmModPoly(2, dV=p[1], dW=p[2:3]) +

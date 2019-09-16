@@ -1,5 +1,5 @@
 
-#' Finding the best forecast by these error metrics and outputting them (3)
+#' Finding the best forecast by these error metrics and outputting them
 #'
 #' @param DF list of data from time_series_catch
 #' @param data original data with Date in first column
@@ -10,10 +10,8 @@
 #' @return list of data frames with best forecast by that error method
 #' @export
 #'
-#' @examples DfMSE <- best_forecast_by_MSE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
-#' DF is a list of data frames, data is the original data frame that got iterated through, f is the frequency of the data, DFError is the list of data frames
-#' with the error values in them, trainStart is a vector of the training start date e.g. c(2016, 1), ts_data is the xts matrix of data in time series format,
-#' names is the original data frame with the column names to match.
+#' @examples DfMSE <- best_forecast_by_MSE(DF, data, f, DFError, trainStart)
+#'
 best_forecast_by_MSE <- function(DF, data, f, DFError, trainStart){
   DfMSE=list()
   ts_data <- xts(data, order.by = data$Date)

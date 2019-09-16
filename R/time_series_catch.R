@@ -8,7 +8,7 @@
 #' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016
 #' @param test numeric vector, i.e. c(2016, 1) for Jan 2016
 #' @param n integer, number of cores you want to use
-#' @param is.VL if the data is vended labor flag it with is.VL = TRUE
+#' @param is.VL if the data is vended labor flag it with is.VL = TRUE otherwise default is is,VL = FALSE
 #' @param seasonaility if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly
 #'
 #' @return a list of data frames with all the forecasts in each frame for each respective column

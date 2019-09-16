@@ -5,7 +5,7 @@
 #' @return DLM
 #' @export
 #'
-#' @examples
+#' @examples Quarterly seasonal model
 model.build.3 <- function(p) {
   return(
     dlmModPoly(2, dV=p[1], dW=p[2:3]) +

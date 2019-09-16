@@ -1,6 +1,6 @@
-#' Finding the best forecast by these error metrics and outputting them (3)
+#' Finding the best forecast by MAPE and outputting them into a list of data frames
 #'
-#' @param DF list of data from time_series_catch
+#' @param DF list of data frames from time_series_catch function
 #' @param data original data with Date in first column
 #' @param f frequency of data i.e. month/day/year 12/365/1, interger
 #' @param DFError list of data frames that contain errors from error_calculations
@@ -9,10 +9,8 @@
 #' @return list of data frames with best forecast by that error method
 #' @export
 #'
-#' @examples DfMAPE <- best_forecast_by_MAPE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
-#' DF is a list of data frames, data is the original data frame that got iterated through, f is the frequency of the data, DFError is the list of data frames
-#' with the error values in them, trainStart is a vector of the training start date e.g. c(2016, 1), ts_data is the xts matrix of data in time series format,
-#' names is the original data frame with the column names to match.
+#' @examples DfMAPE <- best_forecast_by_MAPE(DF, data, f, DFError, trainStart)
+#'
 best_forecast_by_MAPE <- function(DF, data,  f, DFError, trainStart){
   DfMAPE=list()
   ts_data <- xts(data, order.by = data$Date)
