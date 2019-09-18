@@ -1,12 +1,12 @@
 
-#' time series catch all (1)
+#' time series catch all
 #'
 #' @param data original data with Date in first column
 #' @param f frequency of data i.e. month/day/year 12/365/1, interger
 #' @param h forecasting steps up to 3, integer
-#' @param trainStart numeric vector, i.e. c(2016, 1) for Jan 2016
-#' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016
-#' @param test numeric vector, i.e. c(2016, 1) for Jan 2016
+#' @param trainStart numeric vector, i.e. c(2016, 1) for Jan 2016 start of training period
+#' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016 end of training period
+#' @param test numeric vector, i.e. c(2016, 1) for Jan 2016 start of testing period
 #' @param n integer, number of cores you want to use
 #' @param is.VL if the data is vended labor flag it with is.VL = TRUE otherwise default is is,VL = FALSE
 #' @param seasonaility if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly
@@ -19,7 +19,7 @@
 #' f is frequency, h is forecasted steps up to 3, trainStart/trainEnd/test are all date vectors specified with c(2016, 1), n is the number of cores to use for pp
 #' cols is a vector of equal length of the data column minus 1 which holds the names of all the unique column names.
 
-time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly"){
+time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly", is.forecast = FALSE){
   DF=list() #making a list of Data frames
   cols <- colnames(data)
   ts_data <- xts(data, order.by = data$Date)
@@ -48,16 +48,19 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
     ## formatting time series for other packages
     #setting up the main time series list that will be used in the rest of the models
     time <-ts(ts_data[[i]], frequency = f, start = trainStart)
-    n_train<-window(time , start = c(year, month), end = trainEnd) #training columns
-    n_test<-window(time ,start = test) #testing columns
+    n_train<-window(time , start = c(year, month), end = trainEnd) #training
+    n_test<-window(time ,start = test) #testing rows
     #h <- length(n_test) # may need to be changed if you want to forecast using all the the data as training
 
     #dlm model
     a <- ts_dlm_model(time, n_train, h, seasonaility)
-
+    a1 <- as.numeric(n_train)
+    a <- c(a1, a)
 
     #exponntial smoothing
-    ETS <- forecast(ets(as.double(n_train)), h=h)
+    ETSe <- ets(as.double(n_train))
+    ETSf <- fitted.values(ETSe)
+    ETS <- forecast(ETSe, h=h)
 
     if (is.VL==TRUE){
 
@@ -75,26 +78,29 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
     }else{}
 
 
-    #print(xregnntest)
-    #break()
-
     if(is.VL==TRUE){
 
       #arima modelling
-      ARIMA <- forecast(auto.arima(as.double(n_train),
-                                   stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc"),
+      ARIMAa <- auto.arima(as.double(n_train),
+                          stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc")
+      ARIMAf <- fitted.values(ARIMAa)
+      ARIMA <- forecast(ARIMA,
                         h=h, xreg = xregtest)
     }else{
       #arima modelling
-      ARIMA <- forecast(auto.arima(as.double(n_train),
-                                   stepwise = FALSE, parallel = TRUE, biasadj = TRUE, ic ="aicc"),
+      ARIMAa <- auto.arima(as.double(n_train),
+                           stepwise = FALSE, parallel = TRUE, biasadj = TRUE, ic ="aicc")
+      ARIMAf <- fitted.values(ARIMAa)
+      ARIMA <- forecast(ARIMAa,
                         h=h)
     }
 
 
     #uses tbats model
-    TBATS <- forecast(tbats(as.double(n_train),
-                            lambda=0, use.parallel = TRUE, num.cores = n),
+    TBATSt <- tbats(as.double(n_train),
+                    lambda=0, use.parallel = TRUE, num.cores = n)
+    TBATSf <- fitted.values(TBATSt)
+    TBATS <- forecast(TBATSt,
                       h=h)
 
     #gets the forecast values
@@ -109,40 +115,53 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
     n_train<-as.numeric(n_train)
     if (is.VL==TRUE){
 
-
-      Hybrid1 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
-                                      n.args = list(xreg = xregtrain),
-                                      a.args = list(xreg = xregtrain)),
+      Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
+                              n.args = list(xreg = xregtrain),
+                              a.args = list(xreg = xregtrain))
+      Hybrid1f <- fitted.values(Hybrid1h)
+      Hybrid1 <- forecast(Hybrid1h,
                           h=h, xreg = xregtest) # ?forecasthybrid
 
-      Hybrid2 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
-                                      n.args = list(xreg = xregtrain),
-                                      a.args = list(xreg = xregtrain)),
-                          h=h, xreg = xregtest)
+      Hybrid2h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
+                              n.args = list(xreg = xregtrain),
+                              a.args = list(xreg = xregtrain))
+      Hybrid2f <- fitted.values(Hybrid2h)
+      Hybrid2 <- forecast(Hybrid2h,
+                          h=h, xreg = xregtest) # ?forecasthybrid
 
-      Hybrid3 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
-                                      n.args = list(xreg = xregnntrain)),
+      Hybrid3h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
+                              n.args = list(xreg = xregnntrain))
+      Hybrid3f <- fitted.values(Hybrid3h)
+      Hybrid3 <- forecast(Hybrid3h,
                           h=h, xreg = xregnntest)
 
-      Hybrid4 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
-                                      n.args = list(xreg = xregnntrain)),
+      Hybrid4h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
+                              n.args = list(xreg = xregnntrain))
+      Hybrid4f <- fitted.values(Hybrid4h)
+      Hybrid4 <- forecast(Hybrid4h,
                           h=h, xreg = xregnntest)
+
 
 
 
 
     }else{
-      Hybrid1 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,),
+      Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,)
+      Hybrid1f <- fitted.values(Hybrid1h)
+      Hybrid1 <- forecast(Hybrid1h,
                           h=h) # ?forecasthybrid
-
-      Hybrid2 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n),
-                          h=h)
-
-      Hybrid3 <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n),
-                          h=h)
-
-      Hybrid4 <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n),
-                          h=h)
+      Hybrid2h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,)
+      Hybrid2f <- fitted.values(Hybrid2h)
+      Hybrid2 <- forecast(Hybrid2h,
+                          h=h) # ?forecasthybrid
+      Hybrid3h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,)
+      Hybrid3f <- fitted.values(Hybrid3h)
+      Hybrid3 <- forecast(Hybrid3h,
+                          h=h) # ?forecasthybrid
+      Hybrid4h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,)
+      Hybrid4f <- fitted.values(Hybrid4h)
+      Hybrid4 <- forecast(Hybrid4h,
+                          h=h) # ?forecasthybrid
     }
 
 
@@ -159,8 +178,8 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
                 Hybrid2,
                 Hybrid3,
                 Hybrid4,
-                Prophet=fcastprophet,
-                DLM=a)
+                Prophet=tail(fcastprophet, h),
+                DLM=tail(a, h))
 
     # using ?opera package to ensamble the models together and pick the best one best off square loss loss type and model are changeable
     MLpol0 <- mixture(model = "MLpol", loss.type = "square")
@@ -168,12 +187,24 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
                     type='response'),
             start=test, freq=f)
 
+    Xf <- cbind.data.frame(ETSf, ARIMAf, TBATSf, Hybrid1f, Hybrid2f, Hybrid3f, Hybrid4f)
+    X1 <- data.frame(X)
+    X1 <- X1[c(1:7)]
+    X1[] <- lapply(X1, as.numeric)
+    Xf[] <- lapply(Xf, as.numeric)
+
+    colnames(Xf) <- c("ETS", "ARIMA", "TBATS", "Hybrid1", "Hybrid2", "Hybrid3", "Hybrid4")
+    X2 <- rbind(Xf, X1)
+    Q <- cbind(X2, fcastprophet, a)
+    Z <- as.numeric(Z)
+    Z <- c(n_train, Z)
+
     #combining original and forecast values together
-    Y <- cbind(time, X, Z)
-    #print(Y)
+    Y <- cbind(as.numeric(time), Q, Z)
 
     #rename columns for completness
-    colnames(Y) <- c(cols[i],
+    colnames(Y) <- c(
+                     cols[i],
                      "ETS",
                      "ARIMAX",
                      "TBATS",

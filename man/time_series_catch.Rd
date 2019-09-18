@@ -2,7 +2,7 @@
 % Please edit documentation in R/time_series_catch.R
 \name{time_series_catch}
 \alias{time_series_catch}
-\title{time series catch all (1)}
+\title{time series catch all}
 \usage{
 time_series_catch(data, f, h, trainStart, trainEnd, test, n,
   is.VL = FALSE, seasonaility = "Monthly")
@@ -14,15 +14,15 @@ time_series_catch(data, f, h, trainStart, trainEnd, test, n,
 
 \item{h}{forecasting steps up to 3, integer}
 
-\item{trainStart}{numeric vector, i.e. c(2016, 1) for Jan 2016}
+\item{trainStart}{numeric vector, i.e. c(2016, 1) for Jan 2016 start of training period}
 
-\item{trainEnd}{numeric vector, i.e. c(2016, 1) for Jan 2016}
+\item{trainEnd}{numeric vector, i.e. c(2016, 1) for Jan 2016 end of training period}
 
-\item{test}{numeric vector, i.e. c(2016, 1) for Jan 2016}
+\item{test}{numeric vector, i.e. c(2016, 1) for Jan 2016 start of testing period}
 
 \item{n}{integer, number of cores you want to use}
 
-\item{is.VL}{if the data is vended labor flag it with is.VL = TRUE}
+\item{is.VL}{if the data is vended labor flag it with is.VL = TRUE otherwise default is is,VL = FALSE}
 
 \item{seasonaility}{if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly}
 }
@@ -30,7 +30,7 @@ time_series_catch(data, f, h, trainStart, trainEnd, test, n,
 a list of data frames with all the forecasts in each frame for each respective column
 }
 \description{
-time series catch all (1)
+time series catch all
 }
 \examples{
 # Function call for time series catch all with output DF is a list of forecasted fata frames

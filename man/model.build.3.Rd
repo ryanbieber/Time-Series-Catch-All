@@ -15,3 +15,6 @@ DLM
 \description{
 Model building for DLM
 }
+\examples{
+Quarterly seasonal model
+}

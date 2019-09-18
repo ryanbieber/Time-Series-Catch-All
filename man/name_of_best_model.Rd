@@ -2,7 +2,7 @@
 % Please edit documentation in R/best_model_name.R
 \name{name_of_best_model}
 \alias{name_of_best_model}
-\title{name of best model (4)}
+\title{Name of the best model chosen}
 \usage{
 name_of_best_model(data, modellist, x = 1)
 }
@@ -17,7 +17,7 @@ name_of_best_model(data, modellist, x = 1)
 List of he best model names used
 }
 \description{
-name of best model (4)
+Name of the best model chosen
 }
 \examples{
 Takes the original data used and the list of errors made from error_calculatons to find out which is the best model.

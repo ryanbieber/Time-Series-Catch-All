@@ -21,15 +21,16 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
   # initializing list
   cols <- colnames(data)
   DF_Fast=list()
+  # xts timeseries
+  ts_data <- xts(data, order.by = data$Date)
+  ts_data<- t(ts_data)
+  ts_data<- tslist(ts_data)
 
   if (is.VL == TRUE){
     xreg <- exogenous_regressors(ts_data)
   } else{}
 
-  # xts timeseries
-  ts_data <- xts(data, order.by = data$Date)
-  ts_data<- t(ts_data)
-  ts_data<- tslist(ts_data)
+
     for (i in 2:length(data)){  #goes through all columns assume col 1 is the date field and skipping that one
       ## making the train starting date dynamic as some columns have missing data at the beginning
       frame <- ts_data[[1]]
@@ -51,14 +52,19 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
       } else if (bestModels[i-1]=="DLM"){
         #dlm model
         Z <- ts_dlm_model(time, n_train, h, seasonaility)
-        Z <- ts(Z,
-                frequency = f, start = test)
+        Z <- as.numeric(n_train)
+        Z <- c(a1, a)
 
       } else if (bestModels[i-1]=="ETS"){
         #exponntial smoothing
-        ETS <- forecast(ets(as.double(n_train)), h=h)
-        Z <- ts(ETS$mean,
-                frequency = f, start = test)
+        ETSe <- ets(as.double(n_train))
+        Zf <- fitted.values(ETSe)
+        Z <- forecast(ETSe, h=h)
+        Z<- ts(Z$mean,
+                 frequency = f, start = test)
+        Zf <- as.numeric(Zf)
+        Z <- as.numeric(Z)
+        Z <- c(Zf, Z)
 
       } else if (bestModels[i-1]=="ARIMAX"){
         if (is.VL == TRUE){
@@ -71,33 +77,51 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
           ## if you go to 1 forecasted value it messes up the format of multiple external regressors
           if (h==1){
             xregnntest <- t(as.matrix(xregnntest))
+            Zf <- as.numeric(Zf)
+            Z <- as.numeric(Z)
+            Z <- c(Zf, Z)
           }
 
           #arima modelling
-          ARIMA <- forecast(auto.arima(as.double(n_train),
-                                       stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc"),
+          ARIMAa <- auto.arima(as.double(n_train),
+                               stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc")
+          Zf <- fitted.values(ARIMAa)
+          Z <- forecast(ARIMAa,
                             h=h, xreg = xregtest)
-          Z <- ts(ARIMA$mean,
-                  frequency = f, start = test)
+          Z<- ts(Z$mean,
+                     frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
 
         } else {
           #arima modelling
-          ARIMA <- forecast(auto.arima(as.double(n_train),
-                                       stepwise = FALSE, parallel = TRUE, biasadj = TRUE, ic ="aicc"),
+          ARIMAa <- auto.arima(as.double(n_train),
+                               stepwise = FALSE, parallel = TRUE, biasadj = TRUE, ic ="aicc")
+          Zf <- fitted.values(ARIMAa)
+          Z <- forecast(ARIMAa,
                             h=h)
-          Z <- ts(ARIMA$mean,
-                  frequency = f, start = test)
-
+          Z<- ts(Z$mean,
+                 frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
         }
 
 
       } else if (bestModels[i-1]=="TBATS"){
         #uses tbats model
-        TBATS <- forecast(tbats(as.double(n_train),
-                                lambda=0, use.parallel = TRUE, num.cores = n),
+        #uses tbats model
+        TBATSt <- tbats(as.double(n_train),
+                        lambda=0, use.parallel = TRUE, num.cores = n)
+        Zf <- fitted.values(TBATSt)
+        TBATS <- forecast(TBATSt,
                           h=h)
         Z<- ts(TBATS$mean,
-               frequency = f, start = test)
+                   frequency = f, start = test)
+        Zf <- as.numeric(Zf)
+        Z <- as.numeric(Z)
+        Z <- c(Zf, Z)
 
       } else if (bestModels[i-1]=="HybridE"){
         #setting N-train to numeric as hybridModel needs it like that
@@ -106,63 +130,91 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
           #setting up xregs for ARIMA and Hybridmodel
           xregtrain <- xreg[c(1:(NROW(n_train))),1]
           xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
+                                  n.args = list(xreg = xregtrain),
+                                  a.args = list(xreg = xregtrain))
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h, xreg = xregtest) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
 
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregtrain),
-                                    a.args = list(xreg = xregtrain)),
-                        h=h, xreg = xregtest) # ?forecasthybrid
-          Z <-ts(Z$mean, frequency = f, start = test)
         } else {
 
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n),
-                        h=h) # ?forecasthybrid
-          Z <-ts(Z$mean, frequency = f, start = test)
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,)
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
+
         }
 
 
       } else if (bestModels[i-1]=="HybridIn") {
         #setting N-train to numeric as hybridModel needs it like that
         n_train<-as.numeric(n_train)
-        #setting up xregs for ARIMA and Hybridmodel
         if (is.VL == TRUE){
+          #setting up xregs for ARIMA and Hybridmodel
           xregtrain <- xreg[c(1:(NROW(n_train))),1]
           xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
+                                  n.args = list(xreg = xregtrain),
+                                  a.args = list(xreg = xregtrain))
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h, xreg = xregtest) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
 
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregtrain),
-                                    a.args = list(xreg = xregtrain)),
-                        h=h, xreg = xregtest)
-          Z <-ts(Z$mean, frequency = f, start = test)
         } else {
 
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n),
-                        h=h)
-          Z <-ts(Z$mean, frequency = f, start = test)
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,)
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
+
         }
 
 
       } else if (bestModels[i-1]=="HybridENN"){
         #setting N-train to numeric as hybridModel needs it like that
         n_train<-as.numeric(n_train)
-        #setting up xregs for ARIMA and Hybridmodel
         if (is.VL == TRUE){
-          xregnntrain <- xreg[c(1:(NROW(n_train))),]
-          xregnntest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),]
+          #setting up xregs for ARIMA and Hybridmodel
+          xregtrain <- xreg[c(1:(NROW(n_train))),1]
+          xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
+                                  n.args = list(xreg = xregtrain))
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h, xreg = xregtest) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
 
-          ## if you go to 1 forecasted value it messes up the format of multiple external regressors
-          if (h==1){
-            xregnntest <- t(as.matrix(xregnntest))
-          }
-
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregnntrain)),
-                        h=h, xreg = xregnntest)
-          Z <-ts(Z$mean, frequency = f, start = test)
         } else {
 
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n),
-                        h=h)
-          Z <-ts(Z$mean, frequency = f, start = test)
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,)
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
+
         }
 
 
@@ -171,33 +223,30 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
         n_train<-as.numeric(n_train)
         if (is.VL == TRUE){
           #setting up xregs for ARIMA and Hybridmodel
-          xregnntrain <- xreg[c(1:(NROW(n_train))),]
-          xregnntest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),]
+          xregtrain <- xreg[c(1:(NROW(n_train))),1]
+          xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
+                                  n.args = list(xreg = xregtrain))
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h, xreg = xregtest) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
 
-
-          ## if you go to 1 forecasted value it messes up the format of multiple external regressors
-          if (h==1){
-            xregnntest <- t(as.matrix(xregnntest))
-          }
-
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,
-                                    n.args = list(xreg = xregnntrain)),
-                        h=h, xreg = xregnntest)
-          Z <-ts(Z$mean, frequency = f, start = test)
         } else {
 
+          Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n,)
+          Zf <- fitted.values(Hybrid1h)
+          Hybrid1 <- forecast(Hybrid1h,
+                              h=h) # ?forecasthybrid
+          Z <-ts(Hybrid1$mean, frequency = f, start = test)
+          Zf <- as.numeric(Zf)
+          Z <- as.numeric(Z)
+          Z <- c(Zf, Z)
 
-          Z <- forecast(hybridModel(n_train, models = "aefnt", weights="insample", parallel = TRUE, num.cores = n),
-                        h=h)
-          Z <-ts(Z$mean, frequency = f, start = test)
         }
-
-
-
-      } else if (bestModels[i-1]=="Prophet"){
-
-        #running facebooks prophet model and setting up a certain data frame as it is picky in how it likes the inputs
-        Z <- ts_prophet(data, h, i)
 
       } else if (bestModels[i-1]=="Mixture"){
         if (is.VL == TRUE){
@@ -230,8 +279,6 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
           xregnntest <- t(as.matrix(xregnntest))
         }
 
-        #print(xregnntest)
-        #break()
 
         #arima modelling
         ARIMA <- forecast(auto.arima(as.double(n_train),
@@ -296,6 +343,8 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
 
         Z <- ts(Z,
                 frequency = f, start = test)
+        Z <- as.numeric(Z)
+        Z <- c(n_train, Z)
 
         }
       } else {
@@ -375,10 +424,12 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
 
       Z <- ts(Z,
               frequency = f, start = test)
+      Z <- as.numeric(Z)
+      Z <- c(n_train, Z)
       }
 
       final <- cbind(time, Z)
-      colnames(final) <- c(cols[i-1], bestModels[i+1])
+      colnames(final) <- c(cols[i-1], bestModels[i-1])
       DF_Fast[[i]] <- final
       print(i)
   }

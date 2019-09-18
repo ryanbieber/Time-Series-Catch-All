@@ -16,5 +16,5 @@ DLM
 Model building for DLM
 }
 \examples{
-makes a seasonal model in the dlm sense with 2 polynomial terms
+Monthly seasonal model
 }

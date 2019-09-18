@@ -2,7 +2,7 @@
 % Please edit documentation in R/best_forecast_by_MSE.R
 \name{best_forecast_by_MSE}
 \alias{best_forecast_by_MSE}
-\title{Finding the best forecast by these error metrics and outputting them (3)}
+\title{Finding the best forecast by these error metrics and outputting them}
 \usage{
 best_forecast_by_MSE(DF, data, f, DFError, trainStart)
 }
@@ -21,11 +21,9 @@ best_forecast_by_MSE(DF, data, f, DFError, trainStart)
 list of data frames with best forecast by that error method
 }
 \description{
-Finding the best forecast by these error metrics and outputting them (3)
+Finding the best forecast by these error metrics and outputting them
 }
 \examples{
-DfMSE <- best_forecast_by_MSE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
-DF is a list of data frames, data is the original data frame that got iterated through, f is the frequency of the data, DFError is the list of data frames
-with the error values in them, trainStart is a vector of the training start date e.g. c(2016, 1), ts_data is the xts matrix of data in time series format,
-names is the original data frame with the column names to match.
+DfMSE <- best_forecast_by_MSE(DF, data, f, DFError, trainStart)
+
 }

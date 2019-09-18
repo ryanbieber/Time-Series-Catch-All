@@ -15,6 +15,6 @@ ts_prophet <- function(data, h, i){
   dataprophettrain <- prophet(dataprophettrain, daily.seasonality=FALSE, weekly.seasonality=FALSE)
   future <- make_future_dataframe(dataprophettrain, periods = h, freq = 'month')
   forecast <- predict(dataprophettrain, future)
-  fcastprophet <- tail(as.numeric(forecast$yhat),h)
+  fcastprophet <- as.numeric(forecast$yhat)
   return(fcastprophet)
 }

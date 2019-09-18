@@ -2,12 +2,12 @@
 % Please edit documentation in R/best_forecast_by_MAPE.R
 \name{best_forecast_by_MAPE}
 \alias{best_forecast_by_MAPE}
-\title{Finding the best forecast by these error metrics and outputting them (3)}
+\title{Finding the best forecast by MAPE and outputting them into a list of data frames}
 \usage{
 best_forecast_by_MAPE(DF, data, f, DFError, trainStart)
 }
 \arguments{
-\item{DF}{list of data from time_series_catch}
+\item{DF}{list of data frames from time_series_catch function}
 
 \item{data}{original data with Date in first column}
 
@@ -21,11 +21,9 @@ best_forecast_by_MAPE(DF, data, f, DFError, trainStart)
 list of data frames with best forecast by that error method
 }
 \description{
-Finding the best forecast by these error metrics and outputting them (3)
+Finding the best forecast by MAPE and outputting them into a list of data frames
 }
 \examples{
-DfMAPE <- best_forecast_by_MAPE(DF, data, f, DFError, trainStart, ts_data, vended_labor)
-DF is a list of data frames, data is the original data frame that got iterated through, f is the frequency of the data, DFError is the list of data frames
-with the error values in them, trainStart is a vector of the training start date e.g. c(2016, 1), ts_data is the xts matrix of data in time series format,
-names is the original data frame with the column names to match.
+DfMAPE <- best_forecast_by_MAPE(DF, data, f, DFError, trainStart)
+
 }
