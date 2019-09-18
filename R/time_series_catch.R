@@ -8,26 +8,24 @@
 #' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016 end of training period
 #' @param test numeric vector, i.e. c(2016, 1) for Jan 2016 start of testing period
 #' @param n integer, number of cores you want to use
-#' @param is.VL if the data is vended labor flag it with is.VL = TRUE otherwise default is is,VL = FALSE
+#' @param is.XREG if the data is vended labor flag it with is.XREG = TRUE otherwise default is is,VL = FALSE
 #' @param seasonaility if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly
+#' @param xreg Optionally, a numerical vector or matrix of external regressors, which must have the same number of rows as y. (It should not be a data frame.)
 #'
 #' @return a list of data frames with all the forecasts in each frame for each respective column
 #' @export
 #'
 #' @examples # Function call for time series catch all with output DF is a list of forecasted fata frames
-#' DF <- time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly") in which data is the orignal data with the variable Date in the first column
+#' DF <- time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XREG = FALSE, seasonaility = "Monthly") in which data is the orignal data with the variable Date in the first column
 #' f is frequency, h is forecasted steps up to 3, trainStart/trainEnd/test are all date vectors specified with c(2016, 1), n is the number of cores to use for pp
 #' cols is a vector of equal length of the data column minus 1 which holds the names of all the unique column names.
 
-time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL = FALSE, seasonaility = "Monthly", is.forecast = FALSE){
+time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL){
   DF=list() #making a list of Data frames
   cols <- colnames(data)
   ts_data <- xts(data, order.by = data$Date)
   ts_data<- t(ts_data)
   ts_data<- tslist(ts_data)
-  if (is.VL == TRUE){
-    xreg <- exogenous_regressors(ts_data)
-  } else {}
 
   #main loop that does all the modelling/ forecasting
   for (i in 2:length(data)){  #goes through all columns assume col 1 is the date field and skipping that one
@@ -62,7 +60,7 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
     ETSf <- fitted.values(ETSe)
     ETS <- forecast(ETSe, h=h)
 
-    if (is.VL==TRUE){
+    if (is.XREG==TRUE){
 
       #setting up xregs for ARIMA and Hybridmodel
       xregtrain <- xreg[c(1:(NROW(n_train))),1]
@@ -78,7 +76,7 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
     }else{}
 
 
-    if(is.VL==TRUE){
+    if(is.XREG==TRUE){
 
       #arima modelling
       ARIMAa <- auto.arima(as.double(n_train),
@@ -113,7 +111,7 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.VL 
 
     #setting N-train to numeric as hybridModel needs it like that
     n_train<-as.numeric(n_train)
-    if (is.VL==TRUE){
+    if (is.XREG==TRUE){
 
       Hybrid1h <- hybridModel(n_train, models = "aefnt", weights="equal", parallel = TRUE, num.cores = n,
                               n.args = list(xreg = xregtrain),

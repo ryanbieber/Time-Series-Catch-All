@@ -7,9 +7,10 @@
 #' @param trainEnd numeric vector, i.e. c(2016, 1) for Jan 2016
 #' @param test numeric vector, i.e. c(2016, 1) for Jan 2016
 #' @param n integer, number of cores you want to use
-#' @param is.VL if the data is vended labor flag it with is.VL = TRUE
+#' @param is.XREG if the data has external regressors in an external matrix with is.XREG = TRUE
 #' @param seasonaility if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly
 #' @param bestModels vector of best modelNames, comes from best_model_name function
+#' @param Optionally, a numerical vector or matrix of external regressors, which must have the same number of rows as y. (It should not be a data frame.)
 #'
 #' @return a list of data frames that only contain the best model found by using the best_model_name function
 #' @export
@@ -17,7 +18,7 @@
 #' @examples the fast version of time-series catch all, can oly be run after you run the first model due to the dependency on the bestModels variable
 #' as it will only run those types of models in the future. To use this you need to take the output from names_of_best_model and input it into the
 #' bestModels variable. therefore it will only run the functions that were chosen to be the best model.
-fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n, bestModels, is.VL = FALSE, seasonaility = "Monthly"){
+fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n, bestModels, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL){
   # initializing list
   cols <- colnames(data)
   DF_Fast=list()
@@ -25,10 +26,6 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
   ts_data <- xts(data, order.by = data$Date)
   ts_data<- t(ts_data)
   ts_data<- tslist(ts_data)
-
-  if (is.VL == TRUE){
-    xreg <- exogenous_regressors(ts_data)
-  } else{}
 
 
     for (i in 2:length(data)){  #goes through all columns assume col 1 is the date field and skipping that one
@@ -67,7 +64,7 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
         Z <- c(Zf, Z)
 
       } else if (bestModels[i-1]=="ARIMAX"){
-        if (is.VL == TRUE){
+        if (is.XREG == TRUE){
           #setting up xregs for ARIMA and Hybridmodel
           xregtrain <- xreg[c(1:(NROW(n_train))),1]
           xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
@@ -126,7 +123,7 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
       } else if (bestModels[i-1]=="HybridE"){
         #setting N-train to numeric as hybridModel needs it like that
         n_train<-as.numeric(n_train)
-        if (is.VL == TRUE){
+        if (is.XREG == TRUE){
           #setting up xregs for ARIMA and Hybridmodel
           xregtrain <- xreg[c(1:(NROW(n_train))),1]
           xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
@@ -158,7 +155,7 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
       } else if (bestModels[i-1]=="HybridIn") {
         #setting N-train to numeric as hybridModel needs it like that
         n_train<-as.numeric(n_train)
-        if (is.VL == TRUE){
+        if (is.XREG == TRUE){
           #setting up xregs for ARIMA and Hybridmodel
           xregtrain <- xreg[c(1:(NROW(n_train))),1]
           xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
@@ -190,7 +187,7 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
       } else if (bestModels[i-1]=="HybridENN"){
         #setting N-train to numeric as hybridModel needs it like that
         n_train<-as.numeric(n_train)
-        if (is.VL == TRUE){
+        if (is.XREG == TRUE){
           #setting up xregs for ARIMA and Hybridmodel
           xregtrain <- xreg[c(1:(NROW(n_train))),1]
           xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
@@ -221,7 +218,7 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
       } else if (bestModels[i-1]=="HybridInNN"){
         #setting N-train to numeric as hybridModel needs it like that
         n_train<-as.numeric(n_train)
-        if (is.VL == TRUE){
+        if (is.XREG == TRUE){
           #setting up xregs for ARIMA and Hybridmodel
           xregtrain <- xreg[c(1:(NROW(n_train))),1]
           xregtest <- xreg[c((NROW(n_train)+1):(NROW(n_train)+h)),1]
@@ -249,7 +246,7 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
         }
 
       } else if (bestModels[i-1]=="Mixture"){
-        if (is.VL == TRUE){
+        if (is.XREG == TRUE){
         #running facebooks prophet model and setting up a certain data frame as it is picky in how it likes the inputs
         fcastprophet <- ts_prophet(data, h, i)
 
