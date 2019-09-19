@@ -53,7 +53,7 @@ error_values <- function(DF, h){
     error9 <- rbind(MAPE9, RMSE9, MSE9)
     error10 <- rbind(MAPE10, RMSE10, MSE10)
     error <- cbind(error1, error2, error3, error4, error5, error6, error7, error8, error9, error10)
-    colnames(error) <- c("ETS", "ARIMAX", "TBATS", "HybridE", "HybridIn", "HybridENN", "HybridInNN",  "Prophet","DLM", "Mixture")
+    colnames(error) <- c("ETS", "ARIMAX", "TBATS", "HybridE", "HybridIn", "HybridENN", "HybridInNN",  "Prophet","DLM", "Ensamble InvW")
     DFError[[i]] <- error
   }
   return(DFError)

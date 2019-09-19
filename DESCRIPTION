@@ -14,7 +14,6 @@ Imports:
     forecast,
     forecastHybrid,
     doParallel,
-    opera,
     ggplot2,
     xts,
     zoo,
@@ -25,13 +24,13 @@ Imports:
     tidyverse,
     dplyr,
     gridExtra,
-    dlm
+    dlm,
+    ForecastComb
 Depends:
     data.table,
     forecast,
     forecastHybrid,
     doParallel,
-    opera,
     ggplot2,
     xts,
     zoo,
@@ -42,4 +41,5 @@ Depends:
     tidyverse,
     dplyr,
     gridExtra,
-    dlm
+    dlm,
+    ForecastComb

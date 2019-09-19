@@ -5,7 +5,8 @@
 \title{time series catch all}
 \usage{
 time_series_catch(data, f, h, trainStart, trainEnd, test, n,
-  is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL)
+  is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL,
+  OutOfSample = FALSE)
 }
 \arguments{
 \item{data}{original data with Date in first column}
@@ -27,6 +28,8 @@ time_series_catch(data, f, h, trainStart, trainEnd, test, n,
 \item{seasonaility}{if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly}
 
 \item{xreg}{Optionally, a numerical vector or matrix of external regressors, which must have the same number of rows as y. (It should not be a data frame.)}
+
+\item{OutOfSample}{indicates if your are testing out of sample or not, default is false}
 }
 \value{
 a list of data frames with all the forecasts in each frame for each respective column

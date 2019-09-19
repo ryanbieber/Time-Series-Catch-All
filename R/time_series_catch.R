@@ -11,6 +11,7 @@
 #' @param is.XREG if the data is vended labor flag it with is.XREG = TRUE otherwise default is is,VL = FALSE
 #' @param seasonaility if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly
 #' @param xreg Optionally, a numerical vector or matrix of external regressors, which must have the same number of rows as y. (It should not be a data frame.)
+#' @param OutOfSample indicates if your are testing out of sample or not, default is false
 #'
 #' @return a list of data frames with all the forecasts in each frame for each respective column
 #' @export
@@ -20,7 +21,7 @@
 #' f is frequency, h is forecasted steps up to 3, trainStart/trainEnd/test are all date vectors specified with c(2016, 1), n is the number of cores to use for pp
 #' cols is a vector of equal length of the data column minus 1 which holds the names of all the unique column names.
 
-time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL){
+time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL, OutOfSample = FALSE){
   DF=list() #making a list of Data frames
   cols <- colnames(data)
   ts_data <- xts(data, order.by = data$Date)
@@ -40,15 +41,13 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XRE
 
 
     #running facebooks prophet model and setting up a certain data frame as it is picky in how it likes the inputs
-    fcastprophet <- ts_prophet(data, h, i)
+    fcastprophet <- ts_prophet(data, h, i, OutOfSample)
 
 
     ## formatting time series for other packages
     #setting up the main time series list that will be used in the rest of the models
     time <-ts(ts_data[[i]], frequency = f, start = trainStart)
     n_train<-window(time , start = c(year, month), end = trainEnd) #training
-    n_test<-window(time ,start = test) #testing rows
-    #h <- length(n_test) # may need to be changed if you want to forecast using all the the data as training
 
     #dlm model
     a <- ts_dlm_model(time, n_train, h, seasonaility)
@@ -80,7 +79,7 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XRE
 
       #arima modelling
       ARIMAa <- auto.arima(as.double(n_train),
-                          stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc")
+                           stepwise = FALSE, parallel = TRUE, xreg = xregtrain, biasadj = TRUE, ic ="aicc")
       ARIMAf <- fitted.values(ARIMAa)
       ARIMA <- forecast(ARIMA,
                         h=h, xreg = xregtest)
@@ -179,11 +178,15 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XRE
                 Prophet=tail(fcastprophet, h),
                 DLM=tail(a, h))
 
+
+
+
+
     # using ?opera package to ensamble the models together and pick the best one best off square loss loss type and model are changeable
-    MLpol0 <- mixture(model = "MLpol", loss.type = "square")
-    Z <- ts(predict(MLpol0, X, as.numeric(n_test),
-                    type='response'),
-            start=test, freq=f)
+    # MLpol0 <- mixture(model = "MLpol", loss.type = "square")
+    # Z <- ts(predict(MLpol0, X, as.numeric(n_test),
+    #       type='response'),
+    #    start=test, freq=f)
 
     Xf <- cbind.data.frame(ETSf, ARIMAf, TBATSf, Hybrid1f, Hybrid2f, Hybrid3f, Hybrid4f)
     X1 <- data.frame(X)
@@ -194,25 +197,36 @@ time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XRE
     colnames(Xf) <- c("ETS", "ARIMA", "TBATS", "Hybrid1", "Hybrid2", "Hybrid3", "Hybrid4")
     X2 <- rbind(Xf, X1)
     Q <- cbind(X2, fcastprophet, a)
-    Z <- as.numeric(Z)
-    Z <- c(n_train, Z)
+
+    k <- which(is.na(Q), arr.ind=TRUE)
+    Q[k] <- rowMeans(Q, na.rm=TRUE)[k[,1]]
+    Q <- head(Q, -h)
+
+    Z2 <- foreccomb(n_train, Q, newpreds = X)
+    Z1<- comb_InvW(Z2)
+    Z <- c(Z1$Fitted, Z1$Forecasts_Test)
 
     #combining original and forecast values together
-    Y <- cbind(as.numeric(time), Q, Z)
+    if (OutOfSample == TRUE){
+        Y <- cbind(c(as.numeric(time), rep(NA, h)), X2, fcastprophet, a,  Z)
+    } else {
+      Y <- cbind(as.numeric(time), X2, fcastprophet, a,  Z)
+    }
+
 
     #rename columns for completness
     colnames(Y) <- c(
-                     cols[i],
-                     "ETS",
-                     "ARIMAX",
-                     "TBATS",
-                     "HybridE",
-                     "HybridIn",
-                     "HybridENN",
-                     "HybridInNN",
-                     "Prophet",
-                     "DLM",
-                     "Mixture")
+      cols[i],
+      "ETS",
+      "ARIMAX",
+      "TBATS",
+      "HybridE",
+      "HybridIn",
+      "HybridENN",
+      "HybridInNN",
+      "Prophet",
+      "DLM",
+      "Ensamble InvW")
 
     #appending them to an iterated list
     DF[[i]]<-Y

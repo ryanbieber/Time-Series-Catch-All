@@ -4,7 +4,7 @@
 \alias{ts_prophet}
 \title{prohpet model}
 \usage{
-ts_prophet(data, h, i)
+ts_prophet(data, h, i, OutOfSample)
 }
 \arguments{
 \item{data}{original data with Date in first column}
@@ -12,6 +12,8 @@ ts_prophet(data, h, i)
 \item{h}{integer from 1-3}
 
 \item{i}{iteration for loop}
+
+\item{OutOfSample, }{boolean to determine if the forecast is out of sample}
 }
 \value{
 forecasted values from prophet

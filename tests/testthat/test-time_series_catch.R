@@ -5,13 +5,13 @@ test_that("The functions are all running correctly", {
           df <- data.frame(ldeaths, mdeaths, fdeaths)
           data <- cbind(Date, df)
           f=12
-          h=6
+          h=3
           trainStart = c(1974,1)
-          trainEnd = c(1979,6)
-          testStart = c(1979, 7)
+          trainEnd = c(1979,9)
+          testStart = c(1979, 10)
           n=12
   # main testing function
-          expect_warning( DF <- time_series_catch(data, f, h, trainStart, trainEnd, testStart, n))
+          expect_warning( DF <- time_series_catch(data, f, h, trainStart, trainEnd, testStart, n, OutOfSample = FALSE))
   # errors
           DFError <- error_values(DF, h)
   # best forecast by error
@@ -27,6 +27,9 @@ test_that("The functions are all running correctly", {
           csv_forecast_values(data, DFRMSE, h, RMSE, DFError, x=2)
           csv_forecast_values(data, DFMSE, h, MSE, DFError, x=3)
   # fast catch_all
-         expect_warning( DFFast <- fast_time_series_catch_all(data, f, h, trainStart, trainEnd, testStart, n, MAPE))
+          trainStart = c(1974,1)
+          trainEnd = c(1979,12)
+          testStart = c(1980, 1)
+         expect_warning( DFFast <- fast_time_series_catch_all(data, f, h, trainStart, trainEnd, testStart, n, MAPE, OutOfSample = TRUE))
 
           })

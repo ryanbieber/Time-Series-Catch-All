@@ -5,7 +5,8 @@
 \title{ONLY USE IF YOU ALREADY RAN THE FIRST MODEL(time_series_catch_all) AND HAVE A VEcTOR OF MODEL NAMES}
 \usage{
 fast_time_series_catch_all(data, f, h, trainStart, trainEnd, test, n,
-  bestModels, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL)
+  bestModels, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL,
+  OutOfSample = FALSE)
 }
 \arguments{
 \item{data}{original data with Date in first column}
@@ -28,7 +29,9 @@ fast_time_series_catch_all(data, f, h, trainStart, trainEnd, test, n,
 
 \item{seasonaility}{if quarterly choose seasonaility = "Quarter" otherwise dont change default is monthly}
 
-\item{Optionally, }{a numerical vector or matrix of external regressors, which must have the same number of rows as y. (It should not be a data frame.)}
+\item{xreg, }{a numerical vector or matrix of external regressors, which must have the same number of rows as y. (It should not be a data frame.)}
+
+\item{OutOfSample, }{boolean idicating if your forecast is out of sample or not}
 }
 \value{
 a list of data frames that only contain the best model found by using the best_model_name function
