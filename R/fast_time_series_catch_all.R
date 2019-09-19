@@ -19,6 +19,7 @@
 #' @examples the fast version of time-series catch all, can oly be run after you run the first model due to the dependency on the bestModels variable
 #' as it will only run those types of models in the future. To use this you need to take the output from names_of_best_model and input it into the
 #' bestModels variable. therefore it will only run the functions that were chosen to be the best model.
+#'
 fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n, bestModels, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL, OutOfSample = FALSE){
   # initializing list
   cols <- colnames(data)
@@ -375,15 +376,6 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
                     Prophet=tail(fcastprophet, h),
                     DLM=tail(a, h))
 
-
-
-
-
-        # using ?opera package to ensamble the models together and pick the best one best off square loss loss type and model are changeable
-        # MLpol0 <- mixture(model = "MLpol", loss.type = "square")
-        # Z <- ts(predict(MLpol0, X, as.numeric(n_test),
-        #       type='response'),
-        #    start=test, freq=f)
 
         Xf <- cbind.data.frame(ETSf, ARIMAf, TBATSf, Hybrid1f, Hybrid2f, Hybrid3f, Hybrid4f)
         X1 <- data.frame(X)

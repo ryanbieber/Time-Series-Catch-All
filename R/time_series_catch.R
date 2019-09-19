@@ -1,5 +1,5 @@
 
-#' time series catch all
+#' Time Series Catch All
 #'
 #' @param data original data with Date in first column
 #' @param f frequency of data i.e. month/day/year 12/365/1, interger
@@ -16,10 +16,7 @@
 #' @return a list of data frames with all the forecasts in each frame for each respective column
 #' @export
 #'
-#' @examples # Function call for time series catch all with output DF is a list of forecasted fata frames
-#' DF <- time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XREG = FALSE, seasonaility = "Monthly") in which data is the orignal data with the variable Date in the first column
-#' f is frequency, h is forecasted steps up to 3, trainStart/trainEnd/test are all date vectors specified with c(2016, 1), n is the number of cores to use for pp
-#' cols is a vector of equal length of the data column minus 1 which holds the names of all the unique column names.
+#' @examples See read.me
 
 time_series_catch <- function(data,  f, h, trainStart, trainEnd, test, n, is.XREG = FALSE, seasonaility = "Monthly", xreg = NULL, OutOfSample = FALSE){
   DF=list() #making a list of Data frames
