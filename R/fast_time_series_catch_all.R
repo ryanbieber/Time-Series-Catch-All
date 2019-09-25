@@ -398,7 +398,7 @@ fast_time_series_catch_all <- function(data, f, h, trainStart, trainEnd, test, n
       }
 
       final <- cbind(c(as.numeric(time), rep(NA, h)), Z)
-      colnames(final) <- c(cols[i-1], bestModels[i-1])
+      colnames(final) <- c(cols[i], bestModels[i-1])
       DF_Fast[[i]] <- final
       print(i)
   }

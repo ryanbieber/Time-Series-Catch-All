@@ -33,3 +33,5 @@ test_that("The functions are all running correctly", {
          expect_warning( DFFast <- fast_time_series_catch_all(data, f, h, trainStart, trainEnd, testStart, n, MAPE, OutOfSample = TRUE))
 
           })
+
+
