@@ -1,15 +1,5 @@
-# Looks at time series in IBM finance
+# Looks at time series
 
-## Installation
-First, install `rtools` from [CRAN](https://cran.r-project.org/bin/windows/Rtools/)
-
-Now, download the most recent package from [BOX](https://ibm.box.com/s/0t2rjejy9p7inaq6drlam2y7lmfxhioy)
-
-Then, from inside `R` run:
-
-``` r
-install_local("NameOfTheMostUpToDateFile.tar.gz", repos = NULL, type="source", dependencies = TRUE)
-```
 
 ## How to use the package on normal time series data
 
