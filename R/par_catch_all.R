@@ -3,7 +3,10 @@ library(forecast)
 library(parallel)
 library(forecastHybrid)
 library(dplyr)
-par_time_series_catch <- function(x, startTrain = NULL, endTrain = NULL, freq = "month", steps = 3, num.cores = 2, OutOfSample = FALSE, a.a.args = list(NULL),
+library(prophet)
+library(lubridate)
+
+par_time_series_catch <- function(x, startDate = NULL, endDate = NULL, freq = 12, steps = 3, num.cores = 2, OutOfSample = FALSE, a.a.args = list(NULL),
                                   ets.args = list(NULL), tbats.args = list(NULL), prophet.args = list(NULL), n.n.args = list(NULL)){
   auto_args <- list(max.p = 5, max.q = 5, max.P = 2,
                     max.Q = 2, max.order = 5, max.d = 2, max.D = 1, start.p = 2,
@@ -28,13 +31,18 @@ par_time_series_catch <- function(x, startTrain = NULL, endTrain = NULL, freq = 
   tbats_args <- modifyList(tbats_args, tbats.args)
   prophet_args <- modifyList(prophet_args, prophet.args)
   n_n_args <- modifyList(n_n_args, n.n.args)
+  startDate = ymd(startDate)
+  endDate = ymd(endDate)
 
   if (class(x)!="list"){
     print("Put the data into a list and retry dummy")
     model_list <- NULL
-    break()
-  } else {
-    if (OutOfSample == FALSE){
+    break()}
+  if (OutOfSample == FALSE & is.null(startDate)|is.null(endDate)){
+        print("Need to have dates to proceed")
+        break()}
+  else if (OutOfSample == FALSE){
+      x <- lapply(x, window, start = decimal_date(startDate), end = decimal_date(endDate))
       cl <- makeCluster(getOption("cl.cores", num.cores))
       par_auto <- parLapply(cl,x,auto.arima, max.p = auto_args$max.p, max.q = auto_args$max.q, max.P = auto_args$max.P,
                             max.Q = auto_args$max.Q, max.order = auto_args$max.order, max.d = auto_args$max.d, max.D = auto_args$max.D,
@@ -57,11 +65,11 @@ par_time_series_catch <- function(x, startTrain = NULL, endTrain = NULL, freq = 
       stopCluster(cl)
       model_list <- c(par_auto, par_ets, par_tbats, par_hybrid, par_hybrid_in, par_prophet)
     } else {
-      if (OutOfSample == TRUE & is.null(startTrain)|is.null(endTrain)){
+      if (OutOfSample == TRUE & is.null(startDate)|is.null(endDate)){
         print("You need to have a starting date and ending date for your training period")
         break()
       }
-      x <- lapply(x, window, startTrain, endTrain)
+      x <- lapply(x, window, start = decimal_date(startDate), end = decimal_date(endDate))
       cl <- makeCluster(getOption("cl.cores", num.cores))
       par_auto <- parLapply(cl,x,auto.arima, max.p = auto_args$max.p, max.q = auto_args$max.q, max.P = auto_args$max.P,
                             max.Q = auto_args$max.Q, max.order = auto_args$max.order, max.d = auto_args$max.d, max.D = auto_args$max.D,
@@ -75,18 +83,27 @@ par_time_series_catch <- function(x, startTrain = NULL, endTrain = NULL, freq = 
       par_hybrid <- parLapply(cl, x, hybridModel, a.args = auto_args, e.args = ets_args, t.args = tbats_args, n.args = n_n_args)
       par_hybrid_in <- parLapply(cl, x, hybridModel, weights = "insample.errors", a.args = auto_args, e.args = ets_args, t.args = tbats_args, n.args = n_n_args)
       date <- seq(as.Date(startDate), as.Date(endDate), by = freq)
-      prophet_setup <- lapply(x, as.data.frame)
-      prophet_setup <- lapply(prophet_setup, cbind, ds=date)
-      prophet_setup <- lapply(prophet_setup, rename, y=x)
-      par_prophet <- lapply(prophet_setup, prophet, growth = prophet_args$growth, changepoints = prophet_args$changepoints, n.changepoints = prophet_args$n.changepoints,
+      prophet_setup <- parLapply(cl, x, as.data.frame)
+      prophet_setup <- parLapply(cl, prophet_setup, cbind, ds=date)
+      prophet_setup <- parLapply(cl, prophet_setup, rename, y=x)
+      par_prophet <- parLapply(cl, prophet_setup, prophet, growth = prophet_args$growth, changepoints = prophet_args$changepoints, n.changepoints = prophet_args$n.changepoints,
                             changepoint.range = prophet_args$changepoint.range, yearly.seasonality = prophet_args$yearly.seasonality, weekly.seasonality = prophet_args$weekly.seasonality,
                             daily.seasonality = prophet_args$daily.seasonality, holidays = prophet_args$holidays, seasonality.mode = prophet_args$seasonality.mode)
       stopCluster(cl)
       model_list <- c(par_auto, par_ets, par_tbats, par_hybrid, par_hybrid_in, par_prophet)
     }
-
-  }
   return(model_list)
 }
+
 hundo <- replicate(1, list(ldeaths))
-test <- par_time_series_catch(hundo)
+test <- par_time_series_catch(hundo, num.cores = 12, startDate = "1974-01-01", endDate = "1979-12-01")
+
+
+
+startDate = c(1974, 01)
+endDate = c(1979, 12)
+startDateS <- paste(startDate[1], ifelse(nchar(startDate[2])>1, startDate[2], paste0("0", startDate[2])), "01", sep = "-")
+endDateS <- paste(endDate[1],ifelse(nchar(endDate[2])>1, endDate[2], paste0("0", endDate[2])), "01", sep = "-")
+date <- seq(as.Date(startDateS), as.Date(endDateS), by = 365.25/7)
+
+
