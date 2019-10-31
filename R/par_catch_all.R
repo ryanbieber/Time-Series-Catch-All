@@ -32,7 +32,6 @@ par_time_series_catch <- function(x, startDate = NULL, freq = "month", steps = 3
   prophet_args <- modifyList(prophet_args, prophet.args)
   n_n_args <- modifyList(n_n_args, n.n.args)
   startDate = as.Date(startDate)
-  endDate = as.Date(endDate)
 
   if (class(x)!="list"){
     print("Put the data into a list and retry dummy")
@@ -66,7 +65,7 @@ par_time_series_catch <- function(x, startDate = NULL, freq = "month", steps = 3
       model_list <- c(par_auto, par_ets, par_tbats, par_hybrid, par_hybrid_in, par_prophet)
     } else {
       if (OutOfSample == TRUE & is.null(startDate)){
-        print("You need to have a starting date and ending date for your training period")
+        print("You need to have a starting date ")
         break()
       }
       x <- lapply(x, window, start = decimal_date(startDate))
@@ -99,48 +98,66 @@ hundo <- replicate(5, list(ldeaths))
 test <- par_time_series_catch(hundo, num.cores = 12, startDate = "1974-01-01")
 
 
-extract_model_fit_forecast <- function(x, steps = 0, xreg = NULL){
-  if (is_true(class(x) == "tbats")){
-    tbats_fit <- fitted.values(x)
+extract_model_fit_forecast <- function(x, steps = 0, xreg = NULL, freq = "month"){
+  if (any(class(x) %in% c("tbats"))){
+    tbats_fit <- as.numeric(fitted.values(x))
     if (steps>0){
-      tbats_fcast <- forecast(x, h = steps)
-      final <- rbind(tbats_fit, tbats_fcast)
+      tbats_fcast <- forecast::forecast(x, h = steps)
+      tbats_fcast <- as.numeric(tbats_fcast$mean)
+      final <- c(tbats_fit, tbats_fcast)
     } else {
       final <- tbats_fit
     }
 
-  } else if(is_true(class(x) == "Arima")){
+  } else if(any(class(x) %in% c("Arima"))){
     arima_fit <- fitted.values(x)
     if (steps>0){
-      arima_fcast <- forecast(x, h = steps, xreg)
-      final <- rbind(arima_fit, arima_fcast)
+      arima_fcast <- forecast::forecast(x, h = steps, xreg = xreg)
+      arima_fcast <- as.numeric(arima_fcast$mean)
+      final <- c(arima_fit, arima_fcast)
     } else {
       final <- arima_fit
     }
-  } else if(is_true(class(x) == "ets")){
+  } else if(any(class(x) %in% c("ets"))){
     ets_fit <- fitted.values(x)
     if (steps>0){
-      ets_fcast <- forecast(x, h = steps)
-      final <- rbind(ets_fit, ets_fcast)
+      ets_fcast <- forecast::forecast(x, h = steps)
+      ets_fcast <- as.numeric(ets_fcast$mean)
+      final <- c(ets_fit, ets_fcast)
     } else {
       final <- ets_fit
     }
-  } else if(is_true(class(x) == "hybridModel")){
+  } else if(any(class(x) %in% c("hybridModel"))){
     hybrid_fit <- fitted.values(x)
     if (steps>0){
-      hybrid_fcast <- forecast(x, h = steps, xreg)
-      final <- rbind(hybrid_fit, hybrid_fcast)
+      hybrid_fcast <- forecast::forecast(x, h = steps, xreg = xreg)
+      hybrid_fcast <- as.numeric(hybrid_fcast$mean)
+      final <- c(hybrid_fit, hybrid_fcast)
     } else {
       final <- hybrid_fit
     }
+    } else if(any(class(x) %in% c("prophet"))){
+      if (steps == 0){
+        steps <- 1
+        future <- prophet::make_future_dataframe(x, period = steps, freq = freq)
+        forecast <- predict(x, future)
+        final <- head(forecast$yhat,-1)
+      } else {
+        future <- prophet::make_future_dataframe(x, period = steps, freq = freq)
+        forecast <- predict(x, future)
+        final <- forecast$yhat
+      }
+
   } else {
-    final <- NULL
-  }
+      final <- NULL
+    }
   return(final)
 }
 
-test1 <- lapply(test, extract_model_fit_forecast)
+system.time( lapply(test, extract_model_fit_forecast, steps = 1))
 
-
+cl <- makeCluster(getOption("cl.cores", 12))
+system.time(parLapply(cl, test, extract_model_fit_forecast, steps = 1))
+stopCluster(cl)
 
 
