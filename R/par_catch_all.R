@@ -17,11 +17,12 @@
 #' @return list of models for eacg ts
 #' @export
 #'
-#' @examples hundo <- replicate(5, list(ldeaths))
-#' test <- par_time_series_catch(hundo, num.cores = 12)
-#' cl <- makeCluster(getOption("cl.cores", 12))
-#' test_fit <- parLapply(cl, test, extract_model_fit_forecast)
-#' stopCluster(cl)
+#' @examples test <- replicate(5, list(ldeaths))
+#' test_model <- par_time_series_catch(test, num.cores = 12)
+#' test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)
+#'
+#'
+#'
 par_time_series_catch <- function(x, freq = "month", steps = 3, dlmPoly = 2, dlmSeas = 12, num.cores = 2, a.a.args = list(NULL),
                                   ets.args = list(NULL), tbats.args = list(NULL), prophet.args = list(NULL), n.n.args = list(NULL)){
   auto_args <- list(max.p = 5, max.q = 5, max.P = 2,
@@ -94,7 +95,9 @@ par_time_series_catch <- function(x, freq = "month", steps = 3, dlmPoly = 2, dlm
 #' @return array of fitted + forecast
 #' @export
 #'
-#' @examples par_dlm <- parLapply(cl, x, dlmPara, dlmPoly=dlmPoly, dlmSeas=dlmSeas, steps = steps, freq = freq)
+#' @examples test <- replicate(5, list(ldeaths))
+#' test_model <- par_time_series_catch(test, num.cores = 12)
+#' test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)
 dlmPara <- function ( x, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps , freq = freq){
   model.build <- function(p) {
     return(
@@ -137,11 +140,9 @@ dlmPara <- function ( x, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps , f
 #' @return list of numeric arrays with forecasts appended
 #' @export
 #'
-#' @examples  hundo <- replicate(5, list(ldeaths))
-#' test <- par_time_series_catch(hundo, num.cores = 12)
-#' cl <- makeCluster(getOption("cl.cores", 12))
-#' test_fit <- parLapply(cl, test, extract_model_fit_forecast)
-#' stopCluster(cl)
+#' @examples  test <- replicate(5, list(ldeaths))
+#' test_model <- par_time_series_catch(test, num.cores = 12)
+#' test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)
 extract_model_fit_forecast <- function(x, steps = 3, xreg = NULL, freq = "month", num.cores = 2){
   a = list()
   b = list()
