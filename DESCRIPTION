@@ -13,7 +13,6 @@ Imports:
 Depends:
     forecast,
     forecastHybrid,
-    xts,
     zoo,
     lubridate,
     prophet,

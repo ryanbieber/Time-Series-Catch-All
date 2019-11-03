@@ -15,6 +15,8 @@ extract_model_fit_forecast(x, steps = 3, xreg = NULL, freq = "month",
 \item{xreg}{list of matrix/array of exogenous regressors you want to use to forecast only applicable to certain models}
 
 \item{freq}{string of characters indicating e.g. "month" for monthly etc}
+
+\item{num.cores}{integer for the number of cores you want to use}
 }
 \value{
 list of numeric arrays with forecasts appended

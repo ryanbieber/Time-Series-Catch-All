@@ -131,6 +131,7 @@ dlmPara <- function ( x, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps , f
 #' @param steps integer of how many steps out you want to forecast
 #' @param xreg list of matrix/array of exogenous regressors you want to use to forecast only applicable to certain models
 #' @param freq string of characters indicating e.g. "month" for monthly etc
+#' @param num.cores integer for the number of cores you want to use
 #'
 #' @return list of numeric arrays with forecasts appended
 #' @export
