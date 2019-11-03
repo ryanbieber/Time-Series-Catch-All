@@ -1,12 +1,27 @@
 ## data goes into a list of dataframes
-library(forecast)
-library(parallel)
-library(forecastHybrid)
-library(dplyr)
-library(prophet)
-library(lubridate)
-library(dlm)
 
+#' The big dawg that will forecast with the best of them
+#'
+#' @param x list of time series you want to forecast
+#' @param freq character string indicating "month" for monthly etc.
+#' @param steps integer that explains how far out you want forecast(needed for DLM)
+#' @param dlmPoly integer for the order of polynomial you want in dlm, default = 2
+#' @param dlmSeas integer for seasonal effect in dlm, default is 12 for monthly
+#' @param num.cores integer for the number of cores you want to use
+#' @param a.a.args list of arguments you want to change
+#' @param ets.args list of arguments you want to change
+#' @param tbats.args list of arguments you want to change
+#' @param prophet.args list of arguments you want to change
+#' @param n.n.args list of arguments you want to change
+#'
+#' @return list of models for eacg ts
+#' @export
+#'
+#' @examples hundo <- replicate(5, list(ldeaths))
+#' test <- par_time_series_catch(hundo, num.cores = 12)
+#' cl <- makeCluster(getOption("cl.cores", 12))
+#' test_fit <- parLapply(cl, test, extract_model_fit_forecast)
+#' stopCluster(cl)
 par_time_series_catch <- function(x, freq = "month", steps = 3, dlmPoly = 2, dlmSeas = 12, num.cores = 2, a.a.args = list(NULL),
                                   ets.args = list(NULL), tbats.args = list(NULL), prophet.args = list(NULL), n.n.args = list(NULL)){
   auto_args <- list(max.p = 5, max.q = 5, max.P = 2,
@@ -67,6 +82,18 @@ par_time_series_catch <- function(x, freq = "month", steps = 3, dlmPoly = 2, dlm
 }
 
 
+#'DLM building function that models and forecast a dlm model for each TS in the par_catch_all cal
+#'
+#' @param x ts
+#' @param dlmPoly polynomial order used in model.build
+#' @param dlmSeas seasonal portion
+#' @param steps steps ahead
+#' @param freq "month"
+#'
+#' @return array of fitted + forecast
+#' @export
+#'
+#' @examples par_dlm <- parLapply(cl, x, dlmPara, dlmPoly=dlmPoly, dlmSeas=dlmSeas, steps = steps, freq = freq)
 dlmPara <- function ( x, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps , freq = freq){
   model.build <- function(p) {
     return(
@@ -98,49 +125,60 @@ dlmPara <- function ( x, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps , f
   return(a)
 }
 
-extract_model_fit_forecast <- function(x, steps = 3, xreg = NULL, freq = "month"){
-  if (any(class(x) %in% c("tbats"))){
-    tbats_fit <- as.numeric(fitted.values(x))
-    tbats_fcast <- forecast::forecast(x, h = steps)
-    tbats_fcast <- as.numeric(tbats_fcast$mean)
-    final <- c(tbats_fit, tbats_fcast)
-  } else if(any(class(x) %in% c("Arima"))){
-    arima_fit <- fitted.values(x)
-    arima_fcast <- forecast::forecast(x, h = steps, xreg = xreg)
-    arima_fcast <- as.numeric(arima_fcast$mean)
-    final <- c(arima_fit, arima_fcast)
-  } else if(any(class(x) %in% c("ets"))){
-    ets_fit <- fitted.values(x)
-    ets_fcast <- forecast::forecast(x, h = steps)
-    ets_fcast <- as.numeric(ets_fcast$mean)
-    final <- c(ets_fit, ets_fcast)
-    ## this forecasting doesnt work in parallel for some reason but it does with lapply need to investigate further
-  # } else if(any(class(x) %in% c("hybridModel"))){
-  #   hybrid_fit <- fitted.values(x)
-  #   hybrid_fcast <- forecast::forecast(x, h = steps, xreg = xreg)
-  #   hybrid_fcast <- as.numeric(hybrid_fcast$mean)
-  #   final <- c(hybrid_fit, hybrid_fcast)
-  } else if(any(class(x) %in% c("prophet"))){
-    future <- prophet::make_future_dataframe(x, period = steps, freq = freq)
+#' Extract the numeric array of fitted values with the forecast added on to the end.
+#'
+#' @param x list of models from par_catch_all
+#' @param steps integer of how many steps out you want to forecast
+#' @param xreg list of matrix/array of exogenous regressors you want to use to forecast only applicable to certain models
+#' @param freq string of characters indicating e.g. "month" for monthly etc
+#'
+#' @return list of numeric arrays with forecasts appended
+#' @export
+#'
+#' @examples  hundo <- replicate(5, list(ldeaths))
+#' test <- par_time_series_catch(hundo, num.cores = 12)
+#' cl <- makeCluster(getOption("cl.cores", 12))
+#' test_fit <- parLapply(cl, test, extract_model_fit_forecast)
+#' stopCluster(cl)
+extract_model_fit_forecast <- function(x, steps = 3, xreg = NULL, freq = "month", num.cores = 2){
+  a = list()
+  b = list()
+  c = list()
+  hybrid = list()
+  for (i in 1:(length(x)*(3/7))){
+    a[[i]] <- x[[i]]
+  }
+  for (i in (length(x)*(3/7)+1):(length(x)*(5/7))){
+    hybrid[[i]] <- x[[i]]
+  }
+  hybrid <- hybrid[lengths(hybrid) != 0]
+  for (i in (length(x)*(5/7)+1):(length(x)*(6/7))){
+    b[[i]] <- x[[i]]
+  }
+  b <- b[lengths(b) != 0]
+  for (i in (length(x)*(6/7)+1):length(x)){
+    c[[i]] <- x[[i]]
+  }
+  c <- c[lengths(c) != 0]
+  cl <- makeCluster(getOption("cl.cores", num.cores))
+  final_forecast <- parLapply(cl, a, forecast, h=steps, xreg=xreg)
+  final_hybrid <- lapply(hybrid, forecast, h=steps, xreg=xreg)
+  prophet_forecast <- function(x, period = 3, freq = "month"){
+    future <- prophet::make_future_dataframe(x, period, freq)
     forecast <- predict(x, future)
     final <- forecast$yhat
-  } else if(any(class(x) %in% c("dlm"))){
-    final <- x
-  } else {
-    final <- NULL
+    return(final)
   }
+  final_proph <- parLapply(cl, b, prophet_forecast, period = steps, freq = freq)
+  stopCluster(cl)
+  final_dlm <- c
+  forecast_combine <- c(final_forecast, final_hybrid)
+  final_reg <- lapply(forecast_combine, function(x){c(x$fitted, x$mean)})
+  final <- c(final_reg, final_proph, final_dlm)
   return(final)
 }
 
 
-hundo <- replicate(5, list(ldeaths))
-test <- par_time_series_catch(hundo, num.cores = 12)
-cl <- makeCluster(getOption("cl.cores", 12))
-test_fit <- parLapply(cl, test, extract_model_fit_forecast)
-stopCluster(cl)
 
 
-hybrid_fit <- fitted.values(test[[22]])
-hybrid_fcast <- forecast::forecast(test[[22]], h = 3, xreg = NULL)
-hybrid_fcast <- hybrid_fcast$mean
-final <- c(hybrid_fit, hybrid_fcast)
+
