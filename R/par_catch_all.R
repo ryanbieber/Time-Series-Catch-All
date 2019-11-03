@@ -52,7 +52,8 @@ par_time_series_catch <- function(x, freq = "month", steps = 3, dlmPoly = 2, dlm
   if (class(x)!="list"){
     print("Put the data into a list and retry dummy")
     model_list <- NULL
-    break()} else {
+    stop()
+    } else {
       x <- lapply(x, window, start = decimal_date(startDate))
       cl <- makeCluster(getOption("cl.cores", num.cores))
       par_auto <- parLapply(cl,x,auto.arima, max.p = auto_args$max.p, max.q = auto_args$max.q, max.P = auto_args$max.P,
@@ -68,12 +69,12 @@ par_time_series_catch <- function(x, freq = "month", steps = 3, dlmPoly = 2, dlm
       par_hybrid_in <- parLapply(cl, x, hybridModel, weights = "insample.errors",  a.args = auto_args, e.args = ets_args, t.args = tbats_args, n.args = n_n_args)
       date <- seq(ymd(format(date_decimal(head(zoo::index(x[[1]]),1)), "%Y-%m-%d")), ymd(format(date_decimal(tail(zoo::index(x[[1]]),1)), "%Y-%m-%d")), by = freq)
       prophet_setup <- lapply(x, as.data.frame)
-      prophet_setup <- lapply(prophet_setup, cbind, ds=date)
-      prophet_setup <- lapply(prophet_setup, rename, y=x)
+      prophet_setup <- lapply(prophet_setup, cbind, ds = date)
+      prophet_setup <- lapply(prophet_setup, rename, y = x)
       par_prophet <- lapply(prophet_setup, prophet, growth = prophet_args$growth, changepoints = prophet_args$changepoints, n.changepoints = prophet_args$n.changepoints,
                             changepoint.range = prophet_args$changepoint.range, yearly.seasonality = prophet_args$yearly.seasonality, weekly.seasonality = prophet_args$weekly.seasonality,
                             daily.seasonality = prophet_args$daily.seasonality, holidays = prophet_args$holidays, seasonality.mode = prophet_args$seasonality.mode)
-      par_dlm <- parLapply(cl, x, dlmPara, dlmPoly=dlmPoly, dlmSeas=dlmSeas, steps = steps, freq = freq)
+      par_dlm <- parLapply(cl, x, dlmPara, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps, freq = freq)
       model_list <- c(par_auto, par_ets, par_tbats, par_hybrid, par_hybrid_in, par_prophet, par_dlm)
       stopCluster(cl)
     }
