@@ -39,9 +39,11 @@ list of models for eacg ts
 The big dawg that will forecast with the best of them
 }
 \examples{
-hundo <- replicate(5, list(ldeaths))
-test <- par_time_series_catch(hundo, num.cores = 12)
-cl <- makeCluster(getOption("cl.cores", 12))
-test_fit <- parLapply(cl, test, extract_model_fit_forecast)
-stopCluster(cl)
+\dontrun{
+test <- replicate(5, list(ldeaths))
+test_model <- par_time_series_catch(test, num.cores = 12)
+test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)}
+
+
+
 }

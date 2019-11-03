@@ -25,5 +25,8 @@ array of fitted + forecast
 DLM building function that models and forecast a dlm model for each TS in the par_catch_all cal
 }
 \examples{
-par_dlm <- parLapply(cl, x, dlmPara, dlmPoly=dlmPoly, dlmSeas=dlmSeas, steps = steps, freq = freq)
+\dontrun{
+test <- replicate(5, list(ldeaths))
+test_model <- par_time_series_catch(test, num.cores = 12)
+test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)}
 }
