@@ -24,4 +24,4 @@ After running this we can now use the ```extract_model_fit_forecast()``` with ou
 model_forecasts <- extract_model_fit_forecast(models, num.cores = 12)
 ```
 
-This will give you a list of numeric vectors that contain the fitted values and forecasts. One small note to make is that for some reason that I havent figured out yet ```hybridModel()``` doesn't work with ```parLapply()``` therefore the forecasting is slower than it could be.
+This will give you a list of numeric vectors that contain the fitted values and forecasts. The forecasts are not named with what models they come from but it is as follows, auto.arima, ets, tbats, hybridModel(equal weights), hybridModel(in-sample error), prophet, and dlm. One small note to make is that for some reason that I havent figured out yet ```hybridModel()``` doesn't work with ```parLapply()``` therefore the forecasting is slower than it could be.
