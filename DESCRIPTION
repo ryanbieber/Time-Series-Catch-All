@@ -17,7 +17,8 @@ Imports:
     prophet,
     dplyr,
     dlm,
-    parallel
+    parallel,
+    Rcpp
 Suggests:
     testthat
 

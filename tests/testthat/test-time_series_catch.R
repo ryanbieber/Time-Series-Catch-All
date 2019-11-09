@@ -1,8 +1,9 @@
 test_that("The functions are all running correctly", {
         library(TimeSeriesCatchAll)
+        library(Rcpp)
          test <- replicate(2, list(ldeaths))
-         test_model <- par_time_series_catch(test)
-         test_forecast <- extract_model_fit_forecast(test_model)
+         test_model <- TimeSeriesCatchAll::par_time_series_catch(test)
+         test_forecast <- TimeSeriesCatchAll::extract_model_fit_forecast(test_model)
           })
 
 
