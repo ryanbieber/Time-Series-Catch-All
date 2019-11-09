@@ -8,6 +8,13 @@ After the package is installed using ```devtools::install_github("ryanbieber/Tim
 Using some base data about deaths of lung disease for women we make a list of time series.
 
 ``` r
+### You have to call this library as well for some reason
+library(Rcpp)
+
+library(TimeSeriesCatchAll)
+```
+
+``` r
 listTS <- replicate(2, list(ldeaths))
 ```
 
