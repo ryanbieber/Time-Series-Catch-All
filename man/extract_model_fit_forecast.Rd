@@ -28,6 +28,6 @@ Extract the numeric array of fitted values with the forecast added on to the end
 \dontrun{
 test <- replicate(5, list(ldeaths))
 test_model <- par_time_series_catch(test, num.cores = 12)
-test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)}
+}
 
 }

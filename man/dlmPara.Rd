@@ -28,5 +28,5 @@ DLM building function that models and forecast a dlm model for each TS in the pa
 \dontrun{
 test <- replicate(5, list(ldeaths))
 test_model <- par_time_series_catch(test, num.cores = 12)
-test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)}
+}
 }

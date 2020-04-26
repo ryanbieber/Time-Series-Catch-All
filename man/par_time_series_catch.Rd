@@ -4,13 +4,14 @@
 \alias{par_time_series_catch}
 \title{The big dawg that will forecast with the best of them}
 \usage{
-par_time_series_catch(x, freq = "month", steps = 3, dlmPoly = 2,
-  dlmSeas = 12, num.cores = 2, a.a.args = list(NULL),
-  ets.args = list(NULL), tbats.args = list(NULL),
-  prophet.args = list(NULL), n.n.args = list(NULL))
+par_time_series_catch(original, freq = "month", steps = 3,
+  dlmPoly = 2, dlmSeas = 12, num.cores = 2, error = "mape",
+  xreg = NULL, a.a.args = list(NULL), ets.args = list(NULL),
+  tbats.args = list(NULL), prophet.args = list(NULL),
+  n.n.args = list(NULL))
 }
 \arguments{
-\item{x}{list of time series you want to forecast}
+\item{original}{list of time series you want to forecast}
 
 \item{freq}{character string indicating "month" for monthly etc.}
 
@@ -21,6 +22,10 @@ par_time_series_catch(x, freq = "month", steps = 3, dlmPoly = 2,
 \item{dlmSeas}{integer for seasonal effect in dlm, default is 12 for monthly}
 
 \item{num.cores}{integer for the number of cores you want to use}
+
+\item{error}{either is "smape" or "mape", default is "mape"}
+
+\item{xreg}{list of matrix/array of exogenous regressors you want to use to forecast only applicable to certain models}
 
 \item{a.a.args}{list of arguments you want to change}
 
@@ -42,8 +47,6 @@ The big dawg that will forecast with the best of them
 \dontrun{
 test <- replicate(5, list(ldeaths))
 test_model <- par_time_series_catch(test, num.cores = 12)
-test_forecast <- extract_model_fit_forecast(test_model, num.cores = 12)}
-
-
+}
 
 }

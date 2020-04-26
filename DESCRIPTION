@@ -18,7 +18,9 @@ Imports:
     dplyr,
     dlm,
     parallel,
-    Rcpp
+    Rcpp,
+    utils,
+    Metrics
 Suggests:
     testthat
 
