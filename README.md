@@ -8,9 +8,6 @@ After the package is installed using ```devtools::install_github("ryanbieber/Tim
 Using some base data about deaths of lung disease for women we make a list of time series.
 
 ``` r
-### You have to call this library as well for some reason
-library(Rcpp)
-
 library(TimeSeriesCatchAll)
 ```
 
@@ -18,17 +15,11 @@ library(TimeSeriesCatchAll)
 listTS <- replicate(2, list(ldeaths))
 ```
 
-After this we can use the function, ``` par_time_series_catch()``` to model each series with different types of models.
+Now that you have your time-series in a list all we have to do is run, ``` par_time_series_catch()``` to model each series with different types of models. This will backtest all the models based on the steps and then produces a forecast based on the best one out as many steps as you have looked back.
 
 ```r
 ## num.cores indicates the amount of cores you want to use in this process
 models <- par_time_series_catch(listTS, num.cores = 12)
 ```
 
-After running this we can now use the ```extract_model_fit_forecast()``` with our list of models we have indicated.
-
-```r
-model_forecasts <- extract_model_fit_forecast(models, num.cores = 12)
-```
-
-This will give you a list of numeric vectors that contain the fitted values and forecasts. The forecasts are not named with what models they come from but it is as follows, auto.arima, ets, tbats, hybridModel(equal weights), hybridModel(in-sample error), prophet, and dlm. One small note to make is that for some reason that I havent figured out yet ```hybridModel()``` doesn't work with ```parLapply()``` therefore the forecasting is slower than it could be.
+The output is a dataframe of your forecast with the model type on top, if you change the error type it may change the model outputs based on mape or smape. It is the simplest forecasting method for time-series out there. A cavet though, you have to have all the time-series start and end in the same time-period. So, if you have multiple different time-series lengths, seperate them into similar sizes and then run the forecasting function.
