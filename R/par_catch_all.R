@@ -299,12 +299,12 @@ best_forecast_type <- function(model_forecast, steps = steps, origin = NULL){
     }
 
     minmape <- match(min(mape), mape)
-    best_forecastmape <- as.data.frame(first_ts[,minmape])
+    best_forecastmape <- as.data.frame(as.double(first_ts[,minmape]))
     colnames(best_forecastmape) <- paste(c(names(first_ts)[minmape]), q, sep =", " )
     best_mape[[q]] <- best_forecastmape
 
     minsmape <- match(min(smape), smape)
-    best_forecastsmape <- as.data.frame(first_ts[,minsmape])
+    best_forecastsmape <- as.data.frame(as.double(first_ts[,minsmape]))
     colnames(best_forecastsmape) <-  paste(c(names(first_ts)[minsmape]), q, sep =", " )
     best_smape[[q]] <- best_forecastsmape
   }
