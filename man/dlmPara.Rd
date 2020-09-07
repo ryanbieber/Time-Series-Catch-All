@@ -4,8 +4,7 @@
 \alias{dlmPara}
 \title{DLM building function that models and forecast a dlm model for each TS in the par_catch_all cal}
 \usage{
-dlmPara(x, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps,
-  freq = freq)
+dlmPara(x, dlmPoly = dlmPoly, dlmSeas = dlmSeas, steps = steps, freq = freq)
 }
 \arguments{
 \item{x}{ts}

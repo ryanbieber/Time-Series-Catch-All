@@ -4,8 +4,13 @@
 \alias{extract_model_fit_forecast}
 \title{Extract the numeric array of fitted values with the forecast added on to the end.}
 \usage{
-extract_model_fit_forecast(x, steps = 3, xreg = NULL, freq = "month",
-  num.cores = 2)
+extract_model_fit_forecast(
+  x,
+  steps = 3,
+  xreg = NULL,
+  freq = "month",
+  num.cores = 2
+)
 }
 \arguments{
 \item{x}{list of models from par_catch_all}
