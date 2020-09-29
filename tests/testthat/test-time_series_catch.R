@@ -1,8 +1,7 @@
 test_that("The functions are all running correctly", {
         library(TimeSeriesCatchAll)
-        #library(Rcpp)
-         test <- replicate(2, list(ldeaths))
-         test_model <- TimeSeriesCatchAll::par_time_series_catch(test)
+        test <- cbind.data.frame(ldeaths, mdeaths)
+        test_model <- TimeSeriesCatchAll::all_in_one_time_series(test)
           })
 
 

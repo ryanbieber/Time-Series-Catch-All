@@ -5,21 +5,17 @@
 
 After the package is installed using ```devtools::install_github("ryanbieber/Time-Series-Catch-All")``` , The following code sections go over what the package does.
 
-Using some base data about deaths of lung disease for women we make a list of time series.
 
 ``` r
 library(TimeSeriesCatchAll)
 ```
-
-``` r
-listTS <- replicate(2, list(ldeaths))
-```
-
-Now that you have your time-series in a list all we have to do is run, ``` par_time_series_catch()``` to model each series with different types of models. This will backtest all the models based on the steps and then produces a forecast based on the best one out as many steps as you have looked back.
+All you have to do now is make sure that your series you want to test are in a dataframe with the column names being the names of the series you want to test. That's it, it will also impute missing values and look for anomalies as well. If it does change a value it will tell you in what column and in what position the value was that got changed.
 
 ```r
 ## num.cores indicates the amount of cores you want to use in this process
-models <- par_time_series_catch(listTS, num.cores = 12)
+models <- all_in_one_time_series(mtcars, num.cores = parallel::detectCores()-1)
 ```
 
-The output is a dataframe of your forecast with the model type on top, if you change the error type it may change the model outputs based on mape or smape. It is the simplest forecasting method for time-series out there. A cavet though, you have to have all the time-series start and end in the same time-period. So, if you have multiple different time-series lengths, seperate them into similar sizes and then run the forecasting function.
+Disclaimer: I know mtcars isnt a timeseries but it will work nonetheless.
+
+The output will be a dataframe with your model used on the bottom of however many steps you decided to look out with the column name being the name of the orignal series. Enjoy! This should hopefully save you a lot of time deciding on what model to choose for your time-series data.

@@ -1,4 +1,4 @@
-## data goes into a list of dataframes
+## data goes into a list of arrayss
 
 #' The big dawg that will forecast with the best of them
 #'
@@ -351,4 +351,118 @@ forecast_function <- function(orig_x, models, freq = freq, steps = steps, dlmPol
 
   }
   return(forecast_model)
+}
+
+
+#' tells you what values got changed in your dataframe
+#'
+#' @param new dataframe that has imputed values
+#' @param old dataframe of same dim with original values
+#'
+#' @return prints whats changed from new to old
+#' @export
+#'
+#' @examples \dontrun{
+#' values_replaced(mtcars, mtcars*.2s)
+#'}
+values_replaced <- function(new, old){
+  if (dim(new)[1]==dim(old)[1] && dim(new)[2]==dim(old)[2]){
+  } else {
+    stop("Dimensions are different for the dataframes")
+  }
+  for (j in 1:NCOL(new)){
+    for (i in 1:NROW(new)){
+      if (is.na(new[i,j])|is.nan(new[i,j])|is.infinite(new[i,j])|is.null(new[i,j])){
+        print(paste(colnames(new)[j], "at row",i, "is missing!" ))
+      } else if (is.na(old[i,j])){
+        print(paste(colnames(new)[j], "at row",i, "change by",(new[i,j]-0)))
+      } else if (new[i,j]==old[i,j]){
+      } else {
+        print(paste(colnames(new)[j], "at row",i, "change by",(new[i,j]-old[i,j])))
+      }
+    }
+  }
+}
+
+#'
+#' God version of prediction
+#' @importFrom dplyr "%>%"
+#' @param original list of time series you want to forecast
+#' @param freq character string indicating "month" for monthly etc.
+#' @param steps integer that explains how far out you want forecast(needed for DLM)
+#' @param dlmPoly integer for the order of polynomial you want in dlm, default = 2
+#' @param dlmSeas integer for seasonal effect in dlm, default is 12 for monthly
+#' @param num.cores integer for the number of cores you want to use
+#' @param error error method you want to use for backtesting
+#' @param xreg list of matrix/array of exogenous regressors you want to use to forecast only applicable to certain models
+#' @param a.a.args list of arguments you want to change
+#' @param ets.args list of arguments you want to change
+#' @param tbats.args list of arguments you want to change
+#' @param n.n.args list of arguments you want to change
+#'
+#' @return a data frame with your series orignal values plus the forecasts with added steps
+#' @export
+#'
+#' @examples \dontrun{
+#' all_in_one_time_series(mtcars)
+#'}
+all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly = 2, dlmSeas = 12,  num.cores = 2, error = "mape", xreg = NULL, a.a.args = list(NULL),
+                                   ets.args = list(NULL), tbats.args = list(NULL),  n.n.args = list(NULL)){
+
+  if (class(original)!="data.frame"){
+    stop("data isnt in data frame, please change it!")
+  }
+
+  ##Looking at missing values
+  original_imputed <- original %>%
+    dplyr::mutate_all( .funs= ~ifelse(is.na(.), mean(., na.rm = TRUE), .))
+
+
+  ## then looking for anomalies
+  original_imputed_anom <- original_imputed %>%
+    dplyr::mutate_all( .funs= ~ifelse(abs(.)>median(.)+3*sd(.), median(.), .))
+
+  ## tell you what values where replaced
+  values_replaced(original_imputed_anom, original)
+
+  good_format <- lapply(original_imputed_anom, stats::as.ts)
+
+  output <- par_time_series_catch(good_format, freq = freq, steps = steps, dlmPoly = dlmPoly, dlmSeas = dlmSeas,  num.cores = num.cores, error = error, xreg = xreg, a.a.args = a.a.args,
+                                  ets.args = ets.args, tbats.args = tbats.args,  n.n.args = n.n.args)
+  ##collecting model info and pasting it to the bottom
+  models <- colnames(output)
+  models <- gsub(",.*", "", models)
+  colnames(output) <- colnames(original)
+  output <- rbind.data.frame(output, models)
+
+  #changing row name to models
+  rownames(output)[nrow(output)] <- "Models"
+
+  return(output)
+
+}
+
+#' mean prediction for data that isnt very good
+#'
+#' @param df the dataframe you want to predict with the mean
+#' @param steps the number of steps you are looking forward
+#'
+#' @return a data frame of your predictions
+#' @export
+#'
+#' @examples \dontrun{
+#' test_model <- mean_prediction(mtcars, steps=3)
+#'}
+mean_prediction <- function(df, steps=3){
+  col_means <- colMeans(df, na.rm = TRUE)
+  col_means <- ifelse(col_means=="NaN", 0, col_means)
+
+  client_level_forecast_mean <- rbind.data.frame(df, t(replicate(steps,col_means)))
+  client_level_forecast_mean <- rbind.data.frame(client_level_forecast_mean, replicate(ncol(client_level_forecast_mean), "Mean Predicition"))
+  rownames(client_level_forecast_mean) <-  seq(1, nrow(client_level_forecast_mean))
+
+  rownames(client_level_forecast_mean)[nrow(client_level_forecast_mean)] <- "Models"
+
+
+  return(client_level_forecast_mean)
 }
