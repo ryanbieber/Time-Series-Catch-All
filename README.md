@@ -22,9 +22,9 @@ The output will be a data-frame with your model used on the bottom of however ma
 
 ### Main Packages used
 ``` r
-library(forecast) models
-library(forecastHybrid) models
-library(dlm) models
-library(mice) imputation
-library(outForest) outliers
+library(forecast) [Documentation](https://cran.r-project.org/web/packages/forecast/forecast.pdf)
+library(forecastHybrid) [Documentation](https://cran.r-project.org/web/packages/forecastHybrid/forecastHybrid.pdf)
+library(dlm) [Documentation](https://cran.r-project.org/web/packages/dlm/dlm.pdf)
+library(mice) [Documentation](https://cran.r-project.org/web/packages/mice/mice.pdf)
+library(outForest) [Documentation](https://cran.r-project.org/web/packages/outForest/vignettes/outRanger.html)
 ```
