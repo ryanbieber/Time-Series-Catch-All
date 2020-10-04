@@ -16,7 +16,10 @@ all_in_one_time_series(
   a.a.args = list(NULL),
   ets.args = list(NULL),
   tbats.args = list(NULL),
-  n.n.args = list(NULL)
+  n.n.args = list(NULL),
+  method = "pmm",
+  m = 5,
+  std_deviations = 3
 )
 }
 \arguments{
@@ -43,9 +46,15 @@ all_in_one_time_series(
 \item{tbats.args}{list of arguments you want to change}
 
 \item{n.n.args}{list of arguments you want to change}
+
+\item{method}{method mice uses to impute values}
+
+\item{m}{how many times you would like it to impute values}
+
+\item{std_deviations}{number of standard deviations youd like to consider for anomalies}
 }
 \value{
-a data frame with your series orignal values plus the forecasts with added steps
+a data frame with your series original values plus the forecasts with added steps
 }
 \description{
 God version of prediction

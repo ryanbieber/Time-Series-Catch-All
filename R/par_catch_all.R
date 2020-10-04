@@ -1,4 +1,4 @@
-## data goes into a list of arrayss
+## data goes into a list of arrays
 
 #' The big dawg that will forecast with the best of them
 #'
@@ -216,35 +216,44 @@ extract_model_fit_forecast <- function(x, steps = 3, xreg = NULL, freq = "month"
 #' }
 #'
 best_forecast_type <- function(model_forecast, steps = steps, origin = NULL){
-  forecasts <- length(model_forecast)/7
+  ## use a list of models
+  forecasts <- length(model_forecast)/5
   best_mape <- list()
   best_smape <- list()
+  best_mase <- list()
   for (q in 1:forecasts){
     seq_list <- seq(q, length(model_forecast), by = forecasts)
-    first_ts <- cbind(dplyr::bind_cols(model_forecast[seq_list]), as.numeric(origin[[q]]))
-    colnames(first_ts) <- c("Auto Arima", "ETS", "TBATS", "Hybrid", "Hybrid-In", "DLM", "Original")
+    first_ts <- suppressMessages(cbind(dplyr::bind_cols(model_forecast[seq_list]), as.numeric(origin[[q]])))
+    colnames(first_ts) <- c("Auto Arima", "ETS", "TBATS", "Hybrid", "DLM", "Original")
     mape <- NA
     smape <- NA
-    for (i in 1:7){
+    mase <- NA
+    for (i in 1:5){
       mape[i] <- Metrics::mape(utils::tail(as.numeric(first_ts$Original),steps), utils::tail(as.numeric(first_ts[,i]),steps))
       smape[i] <- Metrics::smape(utils::tail(as.numeric(first_ts$Original),steps), utils::tail(as.numeric(first_ts[,i]),steps))
+      mase[i] <- Metrics::mase(utils::tail(as.numeric(first_ts$Original),steps), utils::tail(as.numeric(first_ts[,i]),steps), step_size = steps)
     }
 
     minmape <- match(min(mape), mape)
     best_forecastmape <- as.data.frame(as.double(first_ts[,minmape]))
     colnames(best_forecastmape) <- paste(c(names(first_ts)[minmape]), q, sep =", " )
     best_mape[[q]] <- best_forecastmape
-
     minsmape <- match(min(smape), smape)
     best_forecastsmape <- as.data.frame(as.double(first_ts[,minsmape]))
     colnames(best_forecastsmape) <-  paste(c(names(first_ts)[minsmape]), q, sep =", " )
     best_smape[[q]] <- best_forecastsmape
+    minmase <- match(min(mase), mase)
+    best_forecastmase <- as.data.frame(as.double(first_ts[,minmase]))
+    colnames(best_forecastmase) <-  paste(c(names(first_ts)[minmase]), q, sep =", " )
+    best_mase[[q]] <- best_forecastmase
+
   }
 
   smape_df <- dplyr::bind_cols(best_smape)
   mape_df <- dplyr::bind_cols(best_mape)
+  mase_df <- dplyr::bind_cols(best_mase)
 
-  error_list <- list("smape" = smape_df, "mape" = mape_df)
+  error_list <- list("smape" = smape_df, "mape" = mape_df, "mase" = mase_df)
   return(error_list)
 }
 
@@ -399,28 +408,32 @@ values_replaced <- function(new, old){
 #' @param ets.args list of arguments you want to change
 #' @param tbats.args list of arguments you want to change
 #' @param n.n.args list of arguments you want to change
+#' @param method method mice uses to impute values
+#' @param m how many times you would like it to impute values
+#' @param std_deviations number of standard deviations youd like to consider for anomalies
 #'
-#' @return a data frame with your series orignal values plus the forecasts with added steps
+#' @return a data frame with your series original values plus the forecasts with added steps
 #' @export
 #'
 #' @examples \dontrun{
 #' all_in_one_time_series(mtcars)
 #'}
 all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly = 2, dlmSeas = 12,  num.cores = 2, error = "mape", xreg = NULL, a.a.args = list(NULL),
-                                   ets.args = list(NULL), tbats.args = list(NULL),  n.n.args = list(NULL)){
+                                   ets.args = list(NULL), tbats.args = list(NULL),  n.n.args = list(NULL), method = "pmm", m = 5, std_deviations = 3){
 
   if (class(original)!="data.frame"){
     stop("data isnt in data frame, please change it!")
   }
 
+  ifelse(sapply(original, is.numeric),NA ,stop("all the data isnt numeric, please change it to numeric"))
+
+  ## setting the best random seed
+  set.seed(1337)
   ##Looking at missing values
-  original_imputed <- original %>%
-    dplyr::mutate_all( .funs= ~ifelse(is.na(.), mean(., na.rm = TRUE), .))
-
-
+  original_imputed <- suppressMessages(mice::mice(original, m = m, method = method, printFlag = FALSE))
+  original_imputed <- mice::complete(original_imputed)
   ## then looking for anomalies
-  original_imputed_anom <- original_imputed %>%
-    dplyr::mutate_all( .funs= ~ifelse(abs(.)>median(.)+3*sd(.), median(.), .))
+  original_imputed_anom <- outForest::outForest(original_imputed)[["Data"]]
 
   ## tell you what values where replaced
   values_replaced(original_imputed_anom, original)
@@ -433,8 +446,7 @@ all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly 
   models <- colnames(output)
   models <- gsub(",.*", "", models)
   colnames(output) <- colnames(original)
-  output <- rbind.data.frame(output, models)
-
+  output <- as.data.frame(rbind.data.frame(output, models))
   #changing row name to models
   rownames(output)[nrow(output)] <- "Models"
 

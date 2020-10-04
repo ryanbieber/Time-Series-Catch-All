@@ -19,7 +19,9 @@ Imports:
     parallel,
     Rcpp,
     utils,
-    Metrics
+    Metrics,
+    mice,
+    outForest
 Suggests:
     testthat
     
