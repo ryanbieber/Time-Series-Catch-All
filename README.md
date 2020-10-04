@@ -20,11 +20,10 @@ Disclaimer: I know mtcars isn't a time-series but it will work nonetheless.
 
 The output will be a data-frame with your model used on the bottom of however many steps you decided to look out with the column name being the name of the original series. Enjoy! This should hopefully save you a lot of time deciding on what model to choose for your time-series data.
 
-### Main Packages used
-``` r
+#### Main Packages used
 library(forecast) [Documentation](https://cran.r-project.org/web/packages/forecast/forecast.pdf)
 library(forecastHybrid) [Documentation](https://cran.r-project.org/web/packages/forecastHybrid/forecastHybrid.pdf)
 library(dlm) [Documentation](https://cran.r-project.org/web/packages/dlm/dlm.pdf)
 library(mice) [Documentation](https://cran.r-project.org/web/packages/mice/mice.pdf)
 library(outForest) [Documentation](https://cran.r-project.org/web/packages/outForest/vignettes/outRanger.html)
-```
+
