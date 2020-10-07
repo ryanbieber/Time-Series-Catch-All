@@ -20,7 +20,7 @@ Imports:
     Rcpp,
     utils,
     Metrics,
-    mice,
+    missRanger,
     outForest
 Suggests:
     testthat

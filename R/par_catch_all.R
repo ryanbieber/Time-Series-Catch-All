@@ -396,6 +396,7 @@ values_replaced <- function(new, old){
 #'
 #' God version of prediction
 #' @importFrom dplyr "%>%"
+#'
 #' @param original list of time series you want to forecast
 #' @param freq character string indicating "month" for monthly etc.
 #' @param steps integer that explains how far out you want forecast(needed for DLM)
@@ -408,9 +409,7 @@ values_replaced <- function(new, old){
 #' @param ets.args list of arguments you want to change
 #' @param tbats.args list of arguments you want to change
 #' @param n.n.args list of arguments you want to change
-#' @param method method mice uses to impute values
 #' @param m how many times you would like it to impute values
-#' @param std_deviations number of standard deviations youd like to consider for anomalies
 #'
 #' @return a data frame with your series original values plus the forecasts with added steps
 #' @export
@@ -419,7 +418,7 @@ values_replaced <- function(new, old){
 #' all_in_one_time_series(mtcars)
 #'}
 all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly = 2, dlmSeas = 12,  num.cores = 2, error = "mape", xreg = NULL, a.a.args = list(NULL),
-                                   ets.args = list(NULL), tbats.args = list(NULL),  n.n.args = list(NULL), method = "pmm", m = 5, std_deviations = 3){
+                                   ets.args = list(NULL), tbats.args = list(NULL),  n.n.args = list(NULL),  m = 10){
 
   if (class(original)!="data.frame"){
     stop("data isnt in data frame, please change it!")
@@ -429,9 +428,12 @@ all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly 
 
   ## setting the best random seed
   set.seed(1337)
-  ##Looking at missing values
-  original_imputed <- suppressMessages(mice::mice(original, m = m, method = method, printFlag = FALSE))
-  original_imputed <- mice::complete(original_imputed)
+
+  if(!any(complete.cases(orignal))){
+    orignal_imputed <- missRanger::missRanger(orignal, maxiter = m)
+  } else {
+    original_imputed <- original
+  }
   ## then looking for anomalies
   original_imputed_anom <- outForest::outForest(original_imputed)[["Data"]]
 
