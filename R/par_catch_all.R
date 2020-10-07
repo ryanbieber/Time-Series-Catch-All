@@ -425,7 +425,6 @@ all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly 
   }
 
   ifelse(sapply(original, is.numeric),NA ,stop("all the data isnt numeric, please change it to numeric"))
-
   ## setting the best random seed
   set.seed(1337)
   if(!any(stats::complete.cases(original))){
@@ -437,7 +436,7 @@ all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly 
   print("Missing values replaced with imputed values")
   values_replaced(original_imputed, original)
 
-  ## then looking for anomalies
+  ## then looking for anomaliesss
   original_imputed_anom <- outForest::outForest(original_imputed, verbose = 0)[["Data"]]
 
   print("Outliers coerced to more reasonable values")
