@@ -384,10 +384,10 @@ values_replaced <- function(new, old){
       if (is.na(new[i,j])|is.nan(new[i,j])|is.infinite(new[i,j])|is.null(new[i,j])){
         print(paste(colnames(new)[j], "at row",i, "is missing!" ))
       } else if (is.na(old[i,j])){
-        print(paste(colnames(new)[j], "at row",i, "change by",(new[i,j]-0)))
+        print(paste(colnames(new)[j], "at row",i, "changed by",(new[i,j]-0)))
       } else if (new[i,j]==old[i,j]){
       } else {
-        print(paste(colnames(new)[j], "at row",i, "change by",(new[i,j]-old[i,j])))
+        print(paste(colnames(new)[j], "at row",i, "changed by",(new[i,j]-old[i,j])))
       }
     }
   }
@@ -428,17 +428,21 @@ all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly 
 
   ## setting the best random seed
   set.seed(1337)
-
-  if(!any(complete.cases(orignal))){
-    orignal_imputed <- missRanger::missRanger(orignal, maxiter = m)
-  } else {
+  if(!any(stats::complete.cases(original))){
     original_imputed <- original
+  } else {
+    original_imputed <- missRanger::missRanger(original, maxiter = m, verbose = 0)
   }
-  ## then looking for anomalies
-  original_imputed_anom <- outForest::outForest(original_imputed)[["Data"]]
 
+  print("Missing values replaced with imputed values")
+  values_replaced(original_imputed, original)
+
+  ## then looking for anomalies
+  original_imputed_anom <- outForest::outForest(original_imputed, verbose = 0)[["Data"]]
+
+  print("Outliers coerced to more reasonable values")
   ## tell you what values where replaced
-  values_replaced(original_imputed_anom, original)
+  values_replaced(original_imputed_anom, original_imputed)
 
   good_format <- lapply(original_imputed_anom, stats::as.ts)
 
