@@ -477,12 +477,12 @@ mean_prediction <- function(df, steps=3){
   col_means <- colMeans(df, na.rm = TRUE)
   col_means <- ifelse(col_means=="NaN", 0, col_means)
 
-  client_level_forecast_mean <- rbind.data.frame(df, t(replicate(steps,col_means)))
-  client_level_forecast_mean <- rbind.data.frame(client_level_forecast_mean, replicate(ncol(client_level_forecast_mean), "Mean Predicition"))
-  rownames(client_level_forecast_mean) <-  seq(1, nrow(client_level_forecast_mean))
+  df_mean <- rbind.data.frame(df, t(replicate(steps,col_means)))
+  df_mean <- rbind.data.frame(df_mean, replicate(ncol(df_mean), "Mean Predicition"))
+  rownames(df_mean) <-  seq(1, nrow(df_mean))
 
-  rownames(client_level_forecast_mean)[nrow(client_level_forecast_mean)] <- "Models"
+  rownames(df_mean)[nrow(df_mean)] <- "Models"
 
 
-  return(client_level_forecast_mean)
+  return(df_mean)
 }
