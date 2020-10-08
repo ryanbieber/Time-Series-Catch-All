@@ -372,7 +372,7 @@ forecast_function <- function(orig_x, models, freq = freq, steps = steps, dlmPol
 #' @export
 #'
 #' @examples \dontrun{
-#' values_replaced(mtcars, mtcars*.2s)
+#' values_replaced(mtcars, mtcars*.2)
 #'}
 values_replaced <- function(new, old){
   if (dim(new)[1]==dim(old)[1] && dim(new)[2]==dim(old)[2]){
@@ -383,7 +383,7 @@ values_replaced <- function(new, old){
     for (i in 1:NROW(new)){
       if (is.na(new[i,j])|is.nan(new[i,j])|is.infinite(new[i,j])|is.null(new[i,j])){
         print(paste(colnames(new)[j], "at row",i, "is missing!" ))
-      } else if (is.na(old[i,j])){
+      } else if (is.na(old[i,j])|is.nan(old[i,j])|is.infinite(old[i,j])|is.null(old[i,j])){
         print(paste(colnames(new)[j], "at row",i, "changed by",(new[i,j]-0)))
       } else if (new[i,j]==old[i,j]){
       } else {
@@ -430,14 +430,17 @@ all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly 
   if(!any(stats::complete.cases(original))){
     original_imputed <- original
   } else {
-    original_imputed <- missRanger::missRanger(original, maxiter = m, verbose = 0)
+    original_imputed <- missRanger::missRanger(original, .~1, maxiter = m, verbose = 1)
+    original_imputed <- apply(original_imputed, 2, as.numeric)
   }
 
   print("Missing values replaced with imputed values")
   values_replaced(original_imputed, original)
 
-  ## then looking for anomaliesss
-  original_imputed_anom <- outForest::outForest(original_imputed, verbose = 0)[["Data"]]
+  ## then looking for anomalies
+  outliers <- outForest::outForest(original_imputed, verbose = 0)
+  print(outForest::outliers(outliers))
+  original_imputed_anom <- outliers[["Data"]]
 
   print("Outliers coerced to more reasonable values")
   ## tell you what values where replaced
