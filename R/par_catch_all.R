@@ -427,11 +427,13 @@ all_in_one_time_series <- function(original, freq = "month", steps = 3, dlmPoly 
   ifelse(sapply(original, is.numeric),NA ,stop("all the data isnt numeric, please change it to numeric"))
   ## setting the best random seed
   set.seed(1337)
-  if(!any(!stats::complete.cases(original))){
-    original_imputed <- original
-  } else {
+  if(any(!stats::complete.cases(original))){
     original_imputed <- missRanger::missRanger(original, .~1, maxiter = m, verbose = 1)
     original_imputed <- apply(original_imputed, 2, as.numeric)
+
+  } else {
+
+    original_imputed <- original
   }
 
   print("Missing values replaced with imputed values")
